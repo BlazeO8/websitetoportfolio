@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kartik Jindal | Portfolio</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <nav class="navbar">
+    <h2 class="logo">Kartik Jindal</h2>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#certificates">Certificates</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#resume">Resume</a></li>
+      <li><a href="#feedback">Feedback</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section id="home" class="hero">
+  <div class="hero-text">
+    <h1>Hi, I'm <span>Kartik Jindal</span></h1>
+    <p>BCA Student passionate about Databases, Game Design & Advanced AI with core as Python</p>
+    <a href="#projects" class="btn">View My Work</a>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <h2>About Me</h2>
+  <div class="about-container">
+    <div class="about-text">
+      <p>I’m a BCA student with a keen interest in databases, game design, and advanced AI technologies. I enjoy solving complex problems using <strong>Python</strong> and building projects that blend creativity with logic. My goal is to evolve into a skilled developer and AI enthusiast.</p>
+       <br><a href="resume.pdf" class="btn" download>Download Resume</a>
+    </div>
+    <div class="about-photo">
+      <img src="me.jpg" alt="Kartik Jindal Photo">
+    </div>
+  </div>
+</section>
+
+<!-- Skills -->
+<section id="skills">
+  <h2>Skills</h2>
+  <div class="skills-grid">
+    <div class="skill-card">Python</div>
+    <div class="skill-card">Databases (SQL/MySQL)</div>
+    <div class="skill-card">Game Design</div>
+    <div class="skill-card">AI / ML Basics</div>
+    <div class="skill-card">Networking & Cybersecurity</div>
+    <div class="skill-card">C / C++ Programming</div>
+  </div>
+</section>
+
+<!-- Certificates -->
+<section id="certificates">
+  <h2>Certificates</h2>
+  <input type="text" id="certificateSearch" placeholder="Search Certificates..." onkeyup="filterCertificates()">
+  <div class="certificates-grid">
+    <!-- Certificate cards -->
+    <div class="certificate-card" data-title="Advance AI Skill">
+      <img src="certificates/thumbnails/ai.png" alt="Advance AI">
+      <h3>Advance AI Skill</h3>
+      <p>Outskill</p>
+      <a href="certificates/ai.pdf" class="btn" onclick="openModal('certificates/ai.pdf')">View</a>
+      <a href="certificates/ai.pdf" class="btn btn-download" download>Download</a>
+    </div>
+    <div class="certificate-card" data-title="Python">
+      <img src="certificates/thumbnails/python.png" alt="Python">
+      <h3>Python</h3>
+      <p>DataFlair</p>
+      <a href="certificates/python.pdf" class="btn" onclick="openModal('certificates/python.pdf')">View</a>
+      <a href="certificates/python.pdf" class="btn btn-download" download>Download</a>
+    </div>
+    <div class="certificate-card" data-title="C Part 1">
+      <img src="certificates/thumbnails/c1.png" alt="C Part 1">
+      <h3>C Part 1</h3>
+      <p>Coursera</p>
+      <a href="certificates/c1.pdf" class="btn" onclick="openModal('certificates/c1.pdf')">View</a>
+      <a href="certificates/c1.pdf" class="btn btn-download" download>Download</a>
+    </div>
+    <div class="certificate-card" data-title="C Part 2">
+      <img src="certificates/thumbnails/c2.png" alt="C Part 2">
+      <h3>C Part 2</h3>
+      <p>Coursera</p>
+      <a href="certificates/c2.pdf" class="btn" onclick="openModal('certificates/c2.pdf')">View</a>
+      <a href="certificates/c2.pdf" class="btn btn-download" download>Download</a>
+    </div>
+    <div class="certificate-card" data-title="C++">
+      <img src="certificates/thumbnails/cpp.png" alt="C++">
+      <h3>C++</h3>
+      <p>Coursera</p>
+      <a href="certificates/cpp.pdf" class="btn" onclick="openModal('certificates/cpp.pdf')">View</a>
+      <a href="certificates/cpp.pdf" class="btn btn-download" download>Download</a>
+    </div>
+    <div class="certificate-card" data-title="Networking & Cybersecurity">
+      <img src="certificates/thumbnails/networking.png" alt="Networking">
+      <h3>Networking & Cybersecurity</h3>
+      <p>Ducat</p>
+      <a href="certificates/networking.pdf" class="btn" onclick="openModal('certificates/networking.pdf')">View</a>
+      <a href="certificates/networking.pdf" class="btn btn-download" download>Download</a>
+    </div>
+  </div>
+  <div style="text-align:center;">
+    <button id="downloadAllBtn" class="btn">Download All Certificates</button>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <h2>Projects</h2>
+  <div class="project-grid">
+    <div class="project-card">
+      <h3>Coming Soon</h3>
+      <p>My projects will appear here soon.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Resume -->
+<section id="resume">
+  <h2>Resume</h2>
+  <p><b>  This is my resume kindly check this if u want more details about me!!!
+    <br>Thank You  </b></p><br>
+  <a href="resume.pdf" class="btn" download>Download My Resume</a>
+</section>
+
+<!-- Feedback -->
+<section id="feedback">
+  <h2>Feedback</h2>
+  <form id="feedbackForm">
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="email" id="email" placeholder="Your Email" required>
+    <textarea id="message" rows="4" placeholder="Your Message" required></textarea>
+    <button type="submit" class="btn">Submit</button>
+  </form>
+  <p id="feedbackMsg"></p>
+  <ul id="feedbackList"></ul>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <h2>Contact Me</h2>
+  <p>Phone: <a href="tel:+918059570660">+91 8059570660</a></p>
+  <p>Email: <a href="mailto:kartikjindals08@gmail.com">kartikjindals08@gmail.com</a></p>
+  <p>
+    <a href="https://github.com/BlazeO8" target="_blank"><i class="fab fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/kartik-jindal-xos53709/" target="_blank"><i class="fab fa-linkedin"></i></a>
+  </p>
+</section>
+
+<!-- Certificate Modal -->
+<div id="pdfModal" class="modal">
+  <span class="close" onclick="closeModal()">&times;</span>
+  <iframe id="pdfViewer" src="" frameborder="0"></iframe>
+</div>
+
+<!-- Footer -->
+<footer>
+  <p>© 2025 Kartik Jindal | Built with passion & AI</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/scrollreveal/4.0.9/scrollreveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
