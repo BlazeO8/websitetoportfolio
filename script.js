@@ -87,30 +87,64 @@ function filterCertificates(){
 }
 
 // ======= Feedback =======
-const feedbackForm=document.getElementById("feedbackForm");
-feedbackForm.addEventListener("submit", async e=>{
+const feedbackForm = document.getElementById("feedbackForm");
+const feedbackMsg = document.getElementById("feedbackMsg");
+const feedbackList = document.getElementById("feedbackList");
+
+// Your actual Google Apps Script Web App URL
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxTV5qoWWXMcRWp4xsmXBzeEI6vfs8Y86Cc3K917GIsr_wW2p8A98Bgs_NlhFBtztxr4w/exec";
+
+feedbackForm.addEventListener("submit", async e => {
   e.preventDefault();
-  const feedback={
-    name:document.getElementById("name").value,
-    email:document.getElementById("email").value,
-    message:document.getElementById("message").value,
-    date:new Date().toLocaleString()
+
+  // Collect feedback
+  const feedback = {
+    name: document.getElementById("name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    message: document.getElementById("message").value.trim(),
+    date: new Date().toLocaleString()
   };
-  let feedbacks=JSON.parse(localStorage.getItem("feedbacks"))||[];
+
+  // Save to localStorage
+  let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
   feedbacks.push(feedback);
-  localStorage.setItem("feedbacks",JSON.stringify(feedbacks));
+  localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
   displayFeedbacks();
+
+  // Send to Google Sheets
+  try {
+    const res = await fetch(SHEET_URL, {
+      method: "POST",
+      body: JSON.stringify(feedback),
+      headers: { "Content-Type": "application/json" }
+    });
+    const data = await res.json();
+    if (data.status === "success") {
+      feedbackMsg.innerText = "✅ Feedback submitted to Google Sheets!";
+      feedbackMsg.style.color = "limegreen";
+    } else {
+      feedbackMsg.innerText = "⚠️ Feedback saved locally. Sheets error!";
+      feedbackMsg.style.color = "orange";
+      console.error("Sheets response:", data);
+    }
+  } catch (err) {
+    feedbackMsg.innerText = "⚠️ Feedback saved locally. Cannot reach Sheets!";
+    feedbackMsg.style.color = "orange";
+    console.error("Fetch error:", err);
+  }
+
   feedbackForm.reset();
-  document.getElementById("feedbackMsg").innerText="✅ Feedback submitted!";
 });
-function displayFeedbacks(){
-  const feedbacks=JSON.parse(localStorage.getItem("feedbacks"))||[];
-  const list=document.getElementById("feedbackList");
-  list.innerHTML="";
-  feedbacks.forEach(fb=>{
-    const li=document.createElement("li");
-    li.innerHTML=`<strong>${fb.name}</strong> <em>(${fb.date})</em><br>${fb.message}`;
-    list.appendChild(li);
+
+// Display localStorage feedback
+function displayFeedbacks() {
+  const feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+  feedbackList.innerHTML = "";
+  feedbacks.forEach(fb => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${fb.name}</strong> <em>(${fb.date})</em><br>${fb.message}`;
+    feedbackList.appendChild(li);
   });
 }
 displayFeedbacks();
+
