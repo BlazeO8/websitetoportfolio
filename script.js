@@ -1,81 +1,116 @@
-// Mobile Menu
-function toggleMenu() {
-  document.querySelector('.nav-links').classList.toggle('active');
+// ======= Typing Animation =======
+function typeText(el, text, speed=50, cb=null){
+  el.innerHTML="";
+  let i=0;
+  function typing(){
+    if(i<text.length){ el.innerHTML+=text.charAt(i); i++; setTimeout(typing,speed); }
+    else if(cb) cb();
+  }
+  typing();
 }
 
-// ScrollReveal Animations
-ScrollReveal({distance:'50px', duration:1000, easing:'ease-in-out', reset:false});
-ScrollReveal().reveal('.hero-text', {origin:'bottom'});
-ScrollReveal().reveal('.about-container', {origin:'left', interval:200});
-ScrollReveal().reveal('.skill-card', {origin:'bottom', interval:150});
-ScrollReveal().reveal('.certificate-card', {origin:'bottom', interval:150});
-ScrollReveal().reveal('.project-card', {origin:'bottom', interval:150});
-ScrollReveal().reveal('#resume', {origin:'right'});
-ScrollReveal().reveal('#feedback', {origin:'bottom'});
-ScrollReveal().reveal('#contact', {origin:'top'});
-ScrollReveal().reveal('footer', {origin:'bottom'});
+const typingNameEl=document.getElementById("typingName");
+const typingAboutEl=document.getElementById("typingAbout");
+const typingSkillsEl=document.getElementById("typingSkills");
+const aboutTextEl=document.getElementById("aboutText");
 
-// Certificate Modal
-function openModal(src){
-  document.getElementById('pdfViewer').src = src;
-  document.getElementById('pdfModal').style.display = 'flex';
-}
-function closeModal(){
-  document.getElementById('pdfModal').style.display = 'none';
-  document.getElementById('pdfViewer').src = '';
-}
+const nameText="Kartik Jindal";
+const aboutText="I’m a BCA student with a keen interest in databases, game design, and advanced AI technologies. I enjoy solving complex problems using Python and building projects that blend creativity with logic. My goal is to evolve into a skilled developer and AI enthusiast.";
+const skillsText=["Python","Databases","Game Design","AI / ML Basics","C / C++","Networking & Cybersecurity"];
 
-// Certificate Search
-function filterCertificates() {
-  let input = document.getElementById('certificateSearch').value.toLowerCase();
-  let cards = document.querySelectorAll('.certificate-card');
-  cards.forEach(card => {
-    card.style.display = card.dataset.title.toLowerCase().includes(input) ? '' : 'none';
+typeText(typingNameEl,nameText,100,()=>{
+  typeText(typingAboutEl,aboutText,20,()=>{
+    let skillIndex=0;
+    function typeSkills(){
+      typingSkillsEl.innerHTML="";
+      typeText(typingSkillsEl,skillsText[skillIndex],50,()=>{
+        setTimeout(()=>{ skillIndex=(skillIndex+1)%skillsText.length; typeSkills(); },1000);
+      });
+    }
+    typeSkills();
+  });
+});
+aboutTextEl.textContent=aboutText;
+
+// ======= Theme Toggle =======
+const themeToggle=document.getElementById("themeToggle");
+themeToggle.addEventListener("click",()=>{
+  document.body.classList.toggle("light-theme");
+  localStorage.setItem("theme",document.body.classList.contains("light-theme")?"light":"dark");
+});
+if(localStorage.getItem("theme")==="light") document.body.classList.add("light-theme");
+
+// ======= Draggable Theme Toggle Fix =======
+let isDragging=false, offsetX, offsetY;
+themeToggle.addEventListener("mousedown", e=>{
+  isDragging=true;
+  offsetX=e.clientX-themeToggle.getBoundingClientRect().left;
+  offsetY=e.clientY-themeToggle.getBoundingClientRect().top;
+  themeToggle.style.cursor="grabbing";
+});
+document.addEventListener("mousemove", e=>{
+  if(isDragging){
+    const left=e.clientX-offsetX;
+    const top=e.clientY-offsetY;
+    themeToggle.style.left=`${Math.min(Math.max(left,0),window.innerWidth-themeToggle.offsetWidth)}px`;
+    themeToggle.style.top=`${Math.min(Math.max(top,0),window.innerHeight-themeToggle.offsetHeight)}px`;
+  }
+});
+document.addEventListener("mouseup", ()=>{
+  if(isDragging){
+    isDragging=false;
+    themeToggle.style.cursor="grab";
+  }
+});
+
+// ======= Menu Toggle =======
+document.querySelector(".menu-toggle").addEventListener("click",()=>{
+  document.querySelector(".nav-links").classList.toggle("active");
+});
+
+// ======= Scroll Reveal =======
+const revealElements=document.querySelectorAll("section,.certificate-card,.project-card");
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting) entry.target.classList.add("active");
+    else entry.target.classList.remove("active");
+  });
+},{threshold:0.2});
+revealElements.forEach(el=>observer.observe(el));
+
+// ======= Certificate Search =======
+function filterCertificates(){
+  const query=document.getElementById("certificateSearch").value.toLowerCase();
+  document.querySelectorAll(".certificate-card").forEach(card=>{
+    card.style.display=card.dataset.title.toLowerCase().includes(query)?"block":"none";
   });
 }
 
-// Feedback Form
-const feedbackForm = document.getElementById('feedbackForm');
-const feedbackList = document.getElementById('feedbackList');
-const feedbackMsg = document.getElementById('feedbackMsg');
-
-function renderFeedback() {
-  feedbackList.innerHTML = '';
-  const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-  feedbacks.forEach(f => {
-    const li = document.createElement('li');
-    li.textContent = `${f.name} (${f.email}): ${f.message}`;
-    feedbackList.appendChild(li);
-  });
-}
-
-feedbackForm.addEventListener('submit', e => {
+// ======= Feedback =======
+const feedbackForm=document.getElementById("feedbackForm");
+feedbackForm.addEventListener("submit", async e=>{
   e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const message = document.getElementById('message').value.trim();
-  if(name && email && message){
-    const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-    feedbacks.push({name,email,message});
-    localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
-    renderFeedback();
-    feedbackMsg.textContent="Feedback submitted! Thank you.";
-    feedbackForm.reset();
-    setTimeout(()=>{feedbackMsg.textContent='';},3000);
-  }
+  const feedback={
+    name:document.getElementById("name").value,
+    email:document.getElementById("email").value,
+    message:document.getElementById("message").value,
+    date:new Date().toLocaleString()
+  };
+  let feedbacks=JSON.parse(localStorage.getItem("feedbacks"))||[];
+  feedbacks.push(feedback);
+  localStorage.setItem("feedbacks",JSON.stringify(feedbacks));
+  displayFeedbacks();
+  feedbackForm.reset();
+  document.getElementById("feedbackMsg").innerText="✅ Feedback submitted!";
 });
-renderFeedback();
-
-// Download All Certificates
-document.getElementById('downloadAllBtn').addEventListener('click', async () => {
-  const zip = new JSZip();
-  const cards = document.querySelectorAll('.certificate-card a.btn-download');
-  for(let i=0;i<cards.length;i++){
-    const url = cards[i].href;
-    const filename = url.split('/').pop();
-    const res = await fetch(url);
-    const blob = await res.blob();
-    zip.file(filename, blob);
-  }
-  zip.generateAsync({type:"blob"}).then(content => saveAs(content,"certificates.zip"));
-});
+function displayFeedbacks(){
+  const feedbacks=JSON.parse(localStorage.getItem("feedbacks"))||[];
+  const list=document.getElementById("feedbackList");
+  list.innerHTML="";
+  feedbacks.forEach(fb=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<strong>${fb.name}</strong> <em>(${fb.date})</em><br>${fb.message}`;
+    list.appendChild(li);
+  });
+}
+displayFeedbacks();
