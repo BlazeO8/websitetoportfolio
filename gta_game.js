@@ -9,7 +9,7 @@ const mm = document.getElementById('minimap');
 const mctx = mm.getContext('2d');
 
 const W = 560, H = 480;
-const WORLD = 3600; // BIGGER MAP!
+const WORLD = 2400;
 
 const overlay = document.getElementById('overlay');
 const obtn = document.getElementById('obtn');
@@ -381,11 +381,11 @@ function update(dt) {
     // Screen shake decay
     screenShake = Math.max(0, screenShake - 1);
 
-    // Camera tracking
-    const tx = player.x - W / 2;
-    const ty = player.y - H / 2;
-    cam.x += (tx - cam.x) * 0.12;
-    cam.y += (ty - cam.y) * 0.12;
+    // REPLACE WITH THIS - Shows MORE of the map:
+    const tx = player.x - W / 3;  // Change from W/2 to W/3 to center less
+    const ty = player.y - H / 3;
+    cam.x += (tx - cam.x) * 0.08; // Slower camera follow
+    cam.y += (ty - cam.y) * 0.08;
     cam.x = Math.max(0, Math.min(WORLD - W, cam.x));
     cam.y = Math.max(0, Math.min(WORLD - H, cam.y));
 
@@ -764,269 +764,168 @@ function drawVehicle(c, car) {
 
 // SEDAN CAR DESIGN
 function drawCar(c, car) {
-    // Body - sedan shape with curved top
+    // Body
     c.fillStyle = car.col;
+    c.fillRect(-car.w/2, -car.h/2 + 2, car.w, car.h - 4);
     
-    // Bottom chassis
-    c.fillRect(-car.w/2, -car.h/2 + 3, car.w, car.h - 5);
+    // Cabin
+    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 4);
     
-    // Top cabin (rounded rectangle effect)
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 5);
-    
-    // Front bumper
-    c.fillStyle = '#333';
-    c.fillRect(-car.w/2, -car.h/2 + 3, 3, car.h - 5);
+    // Windows
+    c.fillStyle = '#87ceebaa';
+    c.fillRect(-car.w/2 + 3, -car.h/2 - 1, car.w - 6, 3);
     
     // Headlights
     c.fillStyle = '#ffff99';
-    c.fillRect(-car.w/2 + 1, -car.h/2 + 4, 2, 1);
-    c.fillRect(-car.w/2 + 1, -car.h/2 + 6, 2, 1);
+    c.fillRect(-car.w/2 + 1, -car.h/2 + 2, 2, 1.5);
+    c.fillRect(-car.w/2 + 1, -car.h/2 + 4, 2, 1.5);
     
-    // Windows
-    c.fillStyle = '#87ceeb88';
-    c.fillRect(-car.w/2 + 3, -car.h/2 - 1, car.w - 6, 3);
-    
-    // Taillights
-    c.fillStyle = '#ff4444';
-    c.fillRect(car.w/2 - 3, -car.h/2 + 4, 2, 1);
-    c.fillRect(car.w/2 - 3, -car.h/2 + 6, 2, 1);
-    
-    // Wheels
     drawWheels(c, car);
 }
 
-// TRUCK DESIGN - BIG & BOXY
 function drawTruck(c, car) {
-    // Main cargo area - large rectangular box
+    // Cargo area
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2, -car.h/2, car.w * 0.7, car.h);
+    c.fillRect(-car.w/2, -car.h/2, car.w * 0.65, car.h);
     
-    // Cargo bed details - ridges
-    c.strokeStyle = '#00000055';
+    // Cargo ridges
+    c.strokeStyle = '#00000033';
     c.lineWidth = 1;
-    for (let i = -car.h/2 + 2; i < car.h/2; i += 3) {
+    for (let i = -car.h/2 + 3; i < car.h/2; i += 4) {
         c.beginPath();
         c.moveTo(-car.w/2 + 2, i);
-        c.lineTo(-car.w/2 + car.w * 0.7 - 2, i);
+        c.lineTo(-car.w/2 + car.w * 0.6, i);
         c.stroke();
     }
     
-    // Cabin (front)
+    // Cabin
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2 + car.w * 0.65, -car.h/2, car.w * 0.35, car.h);
+    c.fillRect(-car.w/2 + car.w * 0.6, -car.h/2, car.w * 0.4, car.h);
     
-    // Cabin roof
-    c.fillStyle = car.col;
-    c.beginPath();
-    c.moveTo(-car.w/2 + car.w * 0.65, -car.h/2 - 1);
-    c.lineTo(-car.w/2 + car.w, -car.h/2 - 1);
-    c.lineTo(-car.w/2 + car.w - 2, -car.h/2 - 3);
-    c.lineTo(-car.w/2 + car.w * 0.65 + 2, -car.h/2 - 3);
-    c.fill();
+    // Cabin window
+    c.fillStyle = '#87ceebaa';
+    c.fillRect(-car.w/2 + car.w * 0.62, -car.h/2 + 2, car.w * 0.36, 3);
     
-    // Windows
-    c.fillStyle = '#87ceeb88';
-    c.fillRect(-car.w/2 + car.w * 0.67, -car.h/2 + 2, car.w * 0.3, 3);
-    
-    // Headlights
-    c.fillStyle = '#ffff99';
-    c.fillRect(-car.w/2 + car.w * 0.68, -car.h/2 + 2, 1.5, 1);
-    c.fillRect(-car.w/2 + car.w * 0.68, -car.h/2 + 5, 1.5, 1);
-    
-    // Wheels (bigger for truck)
     drawTruckWheels(c, car);
 }
 
-// MOTORCYCLE DESIGN - SLEEK & SMALL
 function drawBike(c, car) {
-    // Body - streamlined
+    // Frame - streamlined
     c.fillStyle = car.col;
-    
-    // Main body frame
     c.beginPath();
     c.moveTo(-car.w/2, 0);
-    c.quadraticCurveTo(-car.w/2 + car.w/3, -car.h/2, car.w/2, 0);
-    c.quadraticCurveTo(-car.w/2 + car.w/3, car.h/2, -car.w/2, 0);
-    c.fill();
-    
-    // Front fairing
-    c.fillStyle = '#000';
-    c.beginPath();
-    c.moveTo(car.w/2 - 3, -car.h/2 + 1);
-    c.lineTo(car.w/2, -car.h/2);
-    c.lineTo(car.w/2, car.h/2);
-    c.lineTo(car.w/2 - 3, car.h/2 - 1);
+    c.lineTo(-car.w/2 + 3, -car.h/2 + 1);
+    c.lineTo(car.w/2 - 2, -car.h/2 + 1);
+    c.lineTo(car.w/2, 0);
+    c.lineTo(car.w/2 - 2, car.h/2 - 1);
+    c.lineTo(-car.w/2 + 3, car.h/2 - 1);
+    c.closePath();
     c.fill();
     
     // Headlight
     c.fillStyle = '#ffff99';
     c.beginPath();
-    c.arc(car.w/2 - 1, 0, 1.5, 0, Math.PI * 2);
+    c.arc(car.w/2 - 1, 0, 1.2, 0, Math.PI * 2);
     c.fill();
     
-    // Engine detail
-    c.fillStyle = '#666';
-    c.fillRect(-car.w/2 + 2, -car.h/2 + 2, 3, 3);
-    
-    // Bike wheels (thin)
     drawBikeWheels(c, car);
 }
 
-// POLICE CAR DESIGN
 function drawPoliceCar(c, car) {
     // Body
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2, -car.h/2 + 3, car.w, car.h - 5);
+    c.fillRect(-car.w/2, -car.h/2 + 2, car.w, car.h - 4);
     
-    // Police stripe down the middle
+    // White stripe
     c.fillStyle = '#ffffff';
-    c.fillRect(-2, -car.h/2 + 3, 4, car.h - 5);
+    c.fillRect(-1.5, -car.h/2 + 2, 3, car.h - 4);
     
     // Top cabin
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 5);
+    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 4);
     
-    // Police lights on top
+    // Lights on roof
     c.fillStyle = '#f43f5e';
-    c.fillRect(-5, -car.h/2 - 3, 3, 2);
+    c.fillRect(-6, -car.h/2 - 3, 4, 2);
     c.fillStyle = '#60a5fa';
-    c.fillRect(2, -car.h/2 - 3, 3, 2);
+    c.fillRect(2, -car.h/2 - 3, 4, 2);
     
     // Windows
-    c.fillStyle = '#87ceeb88';
+    c.fillStyle = '#87ceebaa';
     c.fillRect(-car.w/2 + 3, -car.h/2 - 1, car.w - 6, 3);
     
-    // Front badge
-    c.fillStyle = '#ffffff';
-    c.fillRect(-car.w/2 + 1, -car.h/2 + 4, 4, 2);
-    c.fillStyle = '#000';
-    c.font = 'bold 6px Arial';
-    c.fillText('POLICE', -car.w/2 + 2, -car.h/2 + 5);
-    
-    // Wheels
     drawWheels(c, car);
 }
 
-// AMBULANCE DESIGN
 function drawAmbulance(c, car) {
-    // Body - elongated
+    // Body - longer
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2, -car.h/2 + 2, car.w, car.h - 4);
+    c.fillRect(-car.w/2, -car.h/2 + 1, car.w, car.h - 2);
     
     // Red cross stripe
     c.fillStyle = '#ff0000';
-    c.fillRect(-1, -car.h/2 + 3, 2, car.h - 6);
-    c.fillRect(-3, -car.h/2 + 5, 6, 2);
+    c.fillRect(-1, -car.h/2 + 2, 2, car.h - 4);
+    c.fillRect(-2.5, 0, 5, 1.5);
     
-    // Cabin
-    c.fillStyle = car.col;
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 1, car.w - 4, 4);
+    // Window
+    c.fillStyle = '#87ceebaa';
+    c.fillRect(-car.w/2 + 2, -car.h/2 + 2, car.w - 4, 2);
     
-    // Windows
-    c.fillStyle = '#87ceeb88';
-    c.fillRect(-car.w/2 + 3, -car.h/2 - 0.5, car.w - 6, 2);
-    
-    // Lights
-    c.fillStyle = '#ff0000';
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, 2, 1);
-    
-    // Medical symbol on side
-    c.fillStyle = '#ff0000';
-    c.fillRect(-2, car.h/2 - 4, 4, 1);
-    c.fillRect(-0.5, car.h/2 - 5, 1, 3);
-    
-    // Wheels
     drawWheels(c, car);
 }
 
-// WHEEL DRAWING FUNCTIONS
 function drawWheels(c, car) {
-    c.fillStyle = '#333';
+    const wheelOffsets = [
+        [-car.w / 3, -car.h / 2 + 1],
+        [-car.w / 3, car.h / 2 - 1],
+        [car.w / 3, -car.h / 2 + 1],
+        [car.w / 3, car.h / 2 - 1]
+    ];
     
-    // Front wheels
-    c.save();
-    c.translate(-car.w/3, -car.h/2 + 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    c.save();
-    c.translate(-car.w/3, car.h/2 - 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    // Rear wheels
-    c.save();
-    c.translate(car.w/3, -car.h/2 + 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3, car.h/2 - 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
+    wheelOffsets.forEach(offset => {
+        c.save();
+        c.translate(offset[0], offset[1]);
+        c.rotate(car.wheelRotation);
+        drawWheel(c, 2.5);
+        c.restore();
+    });
 }
 
 function drawTruckWheels(c, car) {
-    c.fillStyle = '#333';
+    // Front wheels
+    for (let y of [-car.h / 2 + 1, car.h / 2 - 1]) {
+        c.save();
+        c.translate(-car.w / 2 + 4, y);
+        c.rotate(car.wheelRotation);
+        drawWheel(c, 2.5);
+        c.restore();
+    }
     
-    // Front wheels (smaller)
-    c.save();
-    c.translate(-car.w/2 + 5, -car.h/2 + 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    c.save();
-    c.translate(-car.w/2 + 5, car.h/2 - 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    // Rear wheels (bigger dual wheels)
-    c.save();
-    c.translate(car.w/3, -car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3 + 2, -car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3, car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3 + 2, car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
+    // Rear dual wheels (truck style)
+    for (let offset of [-1.5, 1.5]) {
+        for (let y of [-car.h / 2 + 1, car.h / 2 - 1]) {
+            c.save();
+            c.translate(car.w / 3 + offset, y);
+            c.rotate(car.wheelRotation);
+            drawWheel(c, 3);
+            c.restore();
+        }
+    }
 }
 
 function drawBikeWheels(c, car) {
-    c.fillStyle = '#333';
-    
     // Front wheel
     c.save();
-    c.translate(car.w/2 - 4, 0);
+    c.translate(car.w / 2 - 3, 0);
     c.rotate(car.wheelRotation);
-    drawWheel(c, 2);
+    drawWheel(c, 1.8);
     c.restore();
     
     // Rear wheel
     c.save();
-    c.translate(-car.w/2 + 2, 0);
+    c.translate(-car.w / 2 + 2, 0);
     c.rotate(car.wheelRotation);
-    drawWheel(c, 2);
+    drawWheel(c, 1.8);
     c.restore();
 }
 
@@ -1038,21 +937,10 @@ function drawWheel(c, size) {
     c.fill();
     
     // Rim
-    c.fillStyle = '#888';
+    c.fillStyle = '#666';
     c.beginPath();
-    c.arc(0, 0, size * 0.6, 0, Math.PI * 2);
+    c.arc(0, 0, size * 0.55, 0, Math.PI * 2);
     c.fill();
-    
-    // Tread pattern
-    c.strokeStyle = '#333';
-    c.lineWidth = 0.5;
-    for (let i = 0; i < 8; i++) {
-        const angle = (i / 8) * Math.PI * 2;
-        c.beginPath();
-        c.moveTo(Math.cos(angle) * size * 0.3, Math.sin(angle) * size * 0.3);
-        c.lineTo(Math.cos(angle) * size * 0.8, Math.sin(angle) * size * 0.8);
-        c.stroke();
-    }
 }
 
 function drawPlayer(c, p) {
@@ -1108,7 +996,7 @@ function draw() {
     buildings.forEach(b => {
         const bx = b.x - cam.x;
         const by = b.y - cam.y;
-        if (bx > -80 && bx < W + 80 && by > -80 && by < H + 80) {
+        if (bx > -150 && bx < W + 150 && by > -150 && by < H + 150) {
             ctx.fillStyle = b.col;
             ctx.fillRect(bx, by, b.w, b.h);
             ctx.strokeStyle = '#111';
