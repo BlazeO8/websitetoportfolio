@@ -1,5 +1,6 @@
 // ============================================
-// GTA: PIXEL CITY - ENHANCED EDITION v2.0
+// GTA: PIXEL CITY - ENHANCED EDITION v3.0
+// BIGGER MAP + VEHICLE TYPES + ANIMATIONS + EFFECTS
 // ============================================
 
 const cv = document.getElementById('gc');
@@ -8,7 +9,7 @@ const mm = document.getElementById('minimap');
 const mctx = mm.getContext('2d');
 
 const W = 560, H = 480;
-const WORLD = 1800;
+const WORLD = 3600; // BIGGER MAP!
 
 const overlay = document.getElementById('overlay');
 const obtn = document.getElementById('obtn');
@@ -27,6 +28,7 @@ let keys = {}, mouse = { x: W / 2, y: H / 2, down: false };
 let cam, player, cars, peds, cops, bullets, copBullets, particles, explosions;
 let wanted, cash, hp, score, state = 'idle', animId, lastT = 0;
 let level = 1, missions = [], activeMission = null, missionComplete = false;
+let screenShake = 0; // For explosion effects
 
 // ============================================
 // WEAPON SYSTEM
@@ -42,6 +44,30 @@ let currentWeapon = 'PISTOL';
 let ammo = { PISTOL: Infinity, RIFLE: 0, SHOTGUN: 0, MINIGUN: 0 };
 
 // ============================================
+// VEHICLE TYPES - MULTIPLE VEHICLES!
+// ============================================
+const VEHICLE_TYPES = {
+    CAR: { w: 26, h: 14, color: ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6'], speed: 5, handling: 0.045 },
+    TRUCK: { w: 35, h: 18, color: ['#c0392b', '#34495e'], speed: 4, handling: 0.03 },
+    BIKE: { w: 20, h: 10, color: ['#e67e22', '#16a085', '#8e44ad'], speed: 6, handling: 0.08 },
+    POLICE: { w: 26, h: 14, color: ['#1d4ed8'], speed: 5.5, handling: 0.05 },
+    AMBULANCE: { w: 28, h: 15, color: ['#ecf0f1'], speed: 4.5, handling: 0.04 }
+};
+
+// ============================================
+// PLAYER SKINS
+// ============================================
+const PLAYER_SKINS = [
+    { name: 'Default', color: '#f5c542', head: '#fde68a' },
+    { name: 'Red', color: '#f43f5e', head: '#fca5a5' },
+    { name: 'Blue', color: '#3b82f6', head: '#93c5fd' },
+    { name: 'Green', color: '#10b981', head: '#a7f3d0' },
+    { name: 'Purple', color: '#a855f7', head: '#e9d5ff' }
+];
+
+let currentSkin = 0;
+
+// ============================================
 // COLOR SCHEME
 // ============================================
 const COLORS = {
@@ -50,7 +76,7 @@ const COLORS = {
     sidewalk: '#2a2a2a',
     grass: '#1a3a1a',
     building: ['#2d2d3a', '#3a2d2d', '#2d3a2d', '#3a3a2d', '#4a3a2d', '#2d3a3a'],
-    car: ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22'],
+    car: '#e74c3c',
     cop: '#3498db',
     ped: ['#f39c12', '#e67e22', '#16a085', '#8e44ad', '#c0392b', '#2980b9'],
     bullet: '#ffe066',
@@ -59,48 +85,47 @@ const COLORS = {
 };
 
 // ============================================
-// ROAD GENERATION
+// EXPANDED ROAD SYSTEM
 // ============================================
 const roads = [
+    // Horizontal roads
     { x: 0, y: 200, w: WORLD, h: 80 },
-    { x: 0, y: 500, w: WORLD, h: 80 },
-    { x: 0, y: 800, w: WORLD, h: 80 },
-    { x: 0, y: 1100, w: WORLD, h: 80 },
+    { x: 0, y: 600, w: WORLD, h: 80 },
+    { x: 0, y: 1000, w: WORLD, h: 80 },
     { x: 0, y: 1400, w: WORLD, h: 80 },
-    { x: 150, y: 0, w: 80, h: WORLD },
-    { x: 450, y: 0, w: 80, h: WORLD },
-    { x: 800, y: 0, w: 80, h: WORLD },
+    { x: 0, y: 1800, w: WORLD, h: 80 },
+    { x: 0, y: 2200, w: WORLD, h: 80 },
+    { x: 0, y: 2600, w: WORLD, h: 80 },
+    { x: 0, y: 3000, w: WORLD, h: 80 },
+    // Vertical roads
+    { x: 300, y: 0, w: 80, h: WORLD },
+    { x: 700, y: 0, w: 80, h: WORLD },
     { x: 1100, y: 0, w: 80, h: WORLD },
-    { x: 1500, y: 0, w: 80, h: WORLD }
+    { x: 1500, y: 0, w: 80, h: WORLD },
+    { x: 1900, y: 0, w: 80, h: WORLD },
+    { x: 2300, y: 0, w: 80, h: WORLD },
+    { x: 2700, y: 0, w: 80, h: WORLD },
+    { x: 3100, y: 0, w: 80, h: WORLD }
 ];
 
 let buildings = [];
 
 // ============================================
-// BUILDING GENERATION
+// BUILDING GENERATION (BIGGER MAP)
 // ============================================
 function genBuildings() {
     buildings = [];
-    const zones = [
-        { x: 240, y: 0, w: 200, h: 190 },
-        { x: 540, y: 0, w: 250, h: 190 },
-        { x: 890, y: 0, w: 200, h: 190 },
-        { x: 1200, y: 0, w: 250, h: 190 },
-        { x: 1550, y: 0, w: 200, h: 190 },
-        { x: 240, y: 290, w: 200, h: 200 },
-        { x: 540, y: 290, w: 250, h: 200 },
-        { x: 890, y: 290, w: 200, h: 200 },
-        { x: 1200, y: 290, w: 250, h: 200 },
-        { x: 1550, y: 290, w: 200, h: 200 },
-        { x: 240, y: 590, w: 200, h: 300 },
-        { x: 540, y: 590, w: 250, h: 300 },
-        { x: 890, y: 590, w: 200, h: 300 },
-        { x: 1200, y: 590, w: 250, h: 300 },
-        { x: 1550, y: 590, w: 200, h: 300 },
-        { x: 240, y: 1000, w: 1300, h: WORLD - 1000 },
-        { x: 0, y: 0, w: 140, h: WORLD },
-        { x: WORLD - 140, y: 0, w: 140, h: WORLD }
-    ];
+    const zones = [];
+    
+    // Generate building zones across the bigger map
+    for (let x = 0; x < WORLD; x += 400) {
+        for (let y = 0; y < WORLD; y += 400) {
+            if ((x + 200 < WORLD && y + 200 < WORLD) && 
+                !roads.some(r => x > r.x - 100 && x < r.x + r.w + 100 && y > r.y - 100 && y < r.y + r.h + 100)) {
+                zones.push({ x: x, y: y, w: 350, h: 350 });
+            }
+        }
+    }
 
     zones.forEach(z => {
         for (let bx = z.x + 8; bx + 30 < z.x + z.w; bx += 50 + Math.random() * 20) {
@@ -156,24 +181,45 @@ function showNotification(text, duration = 2000) {
 }
 
 // ============================================
-// PARTICLES & EFFECTS
+// PARTICLES & EFFECTS - ENHANCED!
 // ============================================
-function spawnParticle(x, y, col, n = 6) {
+function spawnParticle(x, y, col, n = 6, size = 2.5) {
     for (let i = 0; i < n; i++) {
         const a = Math.random() * Math.PI * 2;
-        const spd = Math.random() * 3 + 0.5;
-        particles.push({ x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 1, col });
+        const spd = Math.random() * 4 + 0.5;
+        particles.push({ 
+            x, y, 
+            vx: Math.cos(a) * spd, 
+            vy: Math.sin(a) * spd, 
+            life: 1, 
+            col, 
+            size: size,
+            gravity: 0.1
+        });
     }
 }
 
 function spawnExplosion(x, y) {
-    explosions.push({ x, y, radius: 1, maxRadius: 80, life: 0.8, particles: [] });
-    for (let i = 0; i < 12; i++) {
+    screenShake = 15; // Screen shake effect!
+    explosions.push({ x, y, radius: 1, maxRadius: 100, life: 1, particles: [] });
+    
+    // Explosion particles with better animation
+    for (let i = 0; i < 20; i++) {
         const a = Math.random() * Math.PI * 2;
-        const spd = Math.random() * 4 + 2;
+        const spd = Math.random() * 5 + 3;
         explosions[explosions.length - 1].particles.push({
-            x, y, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, life: 1, col: COLORS.explosion
+            x, y, 
+            vx: Math.cos(a) * spd, 
+            vy: Math.sin(a) * spd, 
+            life: 1, 
+            col: [COLORS.explosion, '#ffab40', '#ff6b35'][Math.floor(Math.random() * 3)],
+            size: Math.random() * 3 + 1
         });
+    }
+    
+    // Camera shake
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => screenShake = 10, i * 50);
     }
 }
 
@@ -188,14 +234,17 @@ function initGame() {
     score = 0;
     level = 1;
     currentWeapon = 'PISTOL';
+    currentSkin = Math.floor(Math.random() * PLAYER_SKINS.length);
     ammo = { PISTOL: Infinity, RIFLE: 0, SHOTGUN: 0, MINIGUN: 0 };
     missions = [createMission()];
     activeMission = missions[0];
 
     cam = { x: 0, y: 0 };
     player = {
-        x: 240, y: 240, w: 16, h: 10, angle: 0, spd: 0,
-        inCar: null, shootCD: 0, color: '#f5c542'
+        x: WORLD / 2, y: WORLD / 2, w: 16, h: 10, angle: 0, spd: 0,
+        inCar: null, shootCD: 0, 
+        ...PLAYER_SKINS[currentSkin],
+        animFrame: 0
     };
     cars = [];
     peds = [];
@@ -205,29 +254,44 @@ function initGame() {
     particles = [];
     explosions = [];
 
-    // Spawn cars
-    for (let i = 0; i < 22; i++) {
+    // Spawn multiple vehicle types
+    const vehicleTypes = Object.keys(VEHICLE_TYPES);
+    for (let i = 0; i < 35; i++) {
         const p = roadPos();
+        const vType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+        const vData = VEHICLE_TYPES[vType];
+        
         cars.push({
-            x: p.x, y: p.y, w: 26, h: 14, angle: Math.random() * Math.PI * 2,
-            spd: 0, driver: null, col: COLORS.car[Math.floor(Math.random() * COLORS.car.length)], hp: 3
+            x: p.x, y: p.y, w: vData.w, h: vData.h, 
+            angle: Math.random() * Math.PI * 2,
+            spd: 0, driver: null, 
+            col: vData.color[Math.floor(Math.random() * vData.color.length)], 
+            hp: 3,
+            type: vType,
+            maxSpeed: vData.speed,
+            handling: vData.handling,
+            wheelRotation: 0,
+            animFrame: 0
         });
     }
 
     // Spawn pedestrians
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 50; i++) {
         const p = roadPos();
         peds.push({
-            x: p.x, y: p.y, w: 8, h: 8, angle: Math.random() * Math.PI * 2,
-            spd: 0.8, t: Math.random() * 100, col: COLORS.ped[Math.floor(Math.random() * COLORS.ped.length)],
-            alive: true, flee: 0
+            x: p.x, y: p.y, w: 8, h: 8, 
+            angle: Math.random() * Math.PI * 2,
+            spd: 0.8, t: Math.random() * 100, 
+            col: COLORS.ped[Math.floor(Math.random() * COLORS.ped.length)],
+            alive: true, flee: 0,
+            walkFrame: 0
         });
     }
 
     updateHUD();
     updateMissionDisplay();
     state = 'playing';
-    showNotification('MISSION: ' + (activeMission.type.toUpperCase()) + ' (' + activeMission.target + ' targets)');
+    showNotification('🎮 WELCOME TO PIXEL CITY | BIGGER & BETTER! 🎮');
 }
 
 // ============================================
@@ -244,7 +308,7 @@ function updateHUD() {
     starsEl.textContent = '★'.repeat(s) + '☆'.repeat(5 - s);
     starsEl.style.color = s >= 4 ? '#f43f5e' : s >= 2 ? '#f5c542' : '#aaa';
 
-    // Slowly regenerate ammo for non-pistol weapons
+    // Slowly regenerate ammo
     if (Math.random() < 0.01) {
         const weaponList = Object.keys(WEAPONS);
         weaponList.forEach(w => {
@@ -264,7 +328,6 @@ function updateMissionDisplay() {
         missionProgressEl.textContent = activeMission.progress;
         missionTargetEl.textContent = activeMission.target;
 
-        // Change color based on progress
         const progressPercent = activeMission.progress / activeMission.target;
         if (progressPercent >= 1) {
             missionProgressEl.style.color = '#4ade80';
@@ -282,8 +345,10 @@ function updateMissionDisplay() {
 function spawnCop() {
     const p = roadPos();
     cops.push({
-        x: p.x, y: p.y, w: 26, h: 14, angle: 0, spd: 0,
-        shootCD: 80, hp: 3, alertT: 0
+        x: p.x, y: p.y, w: 26, h: 14, 
+        angle: 0, spd: 0,
+        shootCD: 80, hp: 3, alertT: 0,
+        wheelRotation: 0
     });
 }
 
@@ -296,7 +361,6 @@ function cycleWeapon() {
     const nextIndex = (currentIndex + 1) % weaponList.length;
     currentWeapon = weaponList[nextIndex];
 
-    // Give ammo when switching to new weapon
     if (ammo[currentWeapon] === 0) {
         ammo[currentWeapon] = WEAPONS[currentWeapon].ammo;
     }
@@ -313,6 +377,9 @@ let wantedTimer = 0, copSpawnTimer = 0;
 function update(dt) {
     if (state !== 'playing') return;
     const s = dt / 16;
+
+    // Screen shake decay
+    screenShake = Math.max(0, screenShake - 1);
 
     // Camera tracking
     const tx = player.x - W / 2;
@@ -339,6 +406,11 @@ function update(dt) {
         player.x = Math.max(5, Math.min(WORLD - 5, player.x));
         player.y = Math.max(5, Math.min(WORLD - 5, player.y));
         player.angle = Math.atan2(wy - player.y, wx - player.x);
+        
+        // Walking animation
+        if (dx || dy) {
+            player.animFrame = (player.animFrame + 0.2) % 4;
+        }
 
         // Enter car
         if (keys['e'] || keys['f']) {
@@ -348,20 +420,23 @@ function update(dt) {
                 player.inCar = near;
                 keys['e'] = false;
                 keys['f'] = false;
-                showNotification('ENTERED CAR');
+                showNotification('ENTERED ' + near.type);
             }
         }
     } else {
         // ===== PLAYER IN CAR =====
         const car = player.inCar;
         const acc = keys['w'] || keys['arrowup'] ? 0.18 : keys['s'] || keys['arrowdown'] ? -0.1 : 0;
-        const turn = keys['a'] || keys['arrowleft'] ? -0.045 : keys['d'] || keys['arrowright'] ? 0.045 : 0;
+        const turn = keys['a'] || keys['arrowleft'] ? -car.handling : keys['d'] || keys['arrowright'] ? car.handling : 0;
 
         car.spd += acc * s;
         car.spd *= 0.92;
-        car.spd = Math.max(-2, Math.min(5, car.spd));
+        car.spd = Math.max(-2, Math.min(car.maxSpeed, car.spd));
 
         if (Math.abs(car.spd) > 0.1) car.angle += turn * s * (car.spd > 0 ? 1 : -1);
+
+        // Wheel rotation animation
+        car.wheelRotation += car.spd * 0.05;
 
         let nx = car.x + Math.cos(car.angle) * car.spd * s * 2;
         let ny = car.y + Math.sin(car.angle) * car.spd * s * 2;
@@ -371,6 +446,7 @@ function update(dt) {
             car.y = ny;
         } else {
             car.spd *= -0.4;
+            spawnParticle(car.x, car.y, '#888', 8, 2);
         }
 
         car.x = Math.max(10, Math.min(WORLD - 10, car.x));
@@ -389,7 +465,7 @@ function update(dt) {
                     activeMission.progress++;
                     updateMissionDisplay();
                 }
-                spawnParticle(p.x, p.y, '#f43f5e', 8);
+                spawnParticle(p.x, p.y, '#f43f5e', 12, 3);
                 updateHUD();
             }
         });
@@ -417,7 +493,6 @@ function update(dt) {
             const ox = player.inCar ? player.inCar.x : player.x;
             const oy = player.inCar ? player.inCar.y : player.y;
 
-            // Fire bullets
             const bulletCount = currentWeapon === 'SHOTGUN' ? weapon.pellets : 1;
             for (let i = 0; i < bulletCount; i++) {
                 const spreadAngle = (Math.random() - 0.5) * weapon.spread;
@@ -432,7 +507,7 @@ function update(dt) {
                 });
             }
 
-            spawnParticle(ox, oy, '#ffe066', 4);
+            spawnParticle(ox, oy, '#ffe066', 6, 2);
             wanted = Math.min(5, wanted + 0.5);
             if (ammo[currentWeapon] !== Infinity) ammo[currentWeapon]--;
             updateHUD();
@@ -446,24 +521,25 @@ function update(dt) {
         b.life -= s;
 
         if (isBuilding(b.x, b.y)) {
-            spawnParticle(b.x, b.y, '#aaa', 3);
+            spawnParticle(b.x, b.y, '#aaa', 5, 2);
             return false;
         }
 
-        // Hit cops
         cops.forEach(c => {
             if (Math.hypot(b.x - c.x, b.y - c.y) < 16) {
                 c.hp -= b.damage;
-                spawnParticle(c.x, c.y, '#3498db', 6);
+                spawnParticle(c.x, c.y, '#3498db', 8, 2);
                 b.life = 0;
-                if (activeMission && activeMission.type === 'elimination') {
-                    activeMission.progress++;
-                    updateMissionDisplay();
+                if (c.hp <= 0) {
+                    cash += 100;
+                    if (activeMission && activeMission.type === 'elimination') {
+                        activeMission.progress++;
+                        updateMissionDisplay();
+                    }
                 }
             }
         });
 
-        // Hit pedestrians
         peds.forEach(p => {
             if (p.alive && Math.hypot(b.x - p.x, b.y - p.y) < 10) {
                 p.alive = false;
@@ -473,17 +549,20 @@ function update(dt) {
                     activeMission.progress++;
                     updateMissionDisplay();
                 }
-                spawnParticle(p.x, p.y, '#f43f5e', 6);
+                spawnParticle(p.x, p.y, '#f43f5e', 10, 2);
                 updateHUD();
                 b.life = 0;
             }
         });
 
-        // Hit cars
         cars.forEach(c => {
             if (!c.driver && Math.hypot(b.x - c.x, b.y - c.y) < 18) {
                 c.hp -= b.damage;
-                spawnParticle(c.x, c.y, '#f97316', 4);
+                spawnParticle(c.x, c.y, '#f97316', 6, 2);
+                if (c.hp <= 0) {
+                    spawnExplosion(c.x, c.y);
+                    cash += 200;
+                }
                 b.life = 0;
             }
         });
@@ -527,10 +606,9 @@ function update(dt) {
             });
         }
 
-        // Ram player
         if (dist < 18) {
             hp = Math.max(0, hp - 1);
-            spawnParticle(player.x, player.y, '#f43f5e', 6);
+            spawnParticle(player.x, player.y, '#f43f5e', 8, 3);
             updateHUD();
             if (hp <= 0) {
                 state = 'dead';
@@ -549,7 +627,7 @@ function update(dt) {
 
         if (Math.hypot(b.x - player.x, b.y - player.y) < 12) {
             hp = Math.max(0, hp - 1);
-            spawnParticle(player.x, player.y, '#f43f5e', 5);
+            spawnParticle(player.x, player.y, '#f43f5e', 8, 3);
             updateHUD();
             if (hp <= 0) {
                 state = 'dead';
@@ -564,7 +642,7 @@ function update(dt) {
     // ===== PEDESTRIANS =====
     peds.forEach(p => {
         if (!p.alive) return;
-        p.t += 0.015 * s;
+        p.walkFrame = (p.walkFrame + 0.1) % 4;
 
         if (wanted > 0) {
             p.flee += dt;
@@ -597,7 +675,7 @@ function update(dt) {
     // ===== PARTICLES =====
     particles = particles.filter(p => {
         p.x += p.vx * s;
-        p.y += p.vy * s;
+        p.y += (p.vy + p.gravity) * s;
         p.life -= 0.03 * s;
         p.vx *= 0.9;
         p.vy *= 0.9;
@@ -626,7 +704,6 @@ function update(dt) {
             level++;
             showNotification('✓ MISSION COMPLETE! +$' + Math.floor(activeMission.reward) + ' +LEVEL');
 
-            // Create new mission
             missions.push(createMission());
             activeMission = missions[missions.length - 1];
             showNotification('NEW MISSION: ' + activeMission.type.toUpperCase() + ' (' + activeMission.target + ' targets)');
@@ -637,11 +714,11 @@ function update(dt) {
 }
 
 // ============================================
-// DRAWING FUNCTIONS
+// DRAWING FUNCTIONS - ENHANCED!
 // ============================================
 function drawRotatedRect(c, x, y, w, h, angle, fillCol, strokeCol) {
     c.save();
-    c.translate(x - cam.x, y - cam.y);
+    c.translate(x - cam.x + (Math.random() - 0.5) * screenShake, y - cam.y + (Math.random() - 0.5) * screenShake);
     c.rotate(angle);
     c.fillStyle = fillCol;
     c.fillRect(-w / 2, -h / 2, w, h);
@@ -653,8 +730,63 @@ function drawRotatedRect(c, x, y, w, h, angle, fillCol, strokeCol) {
     c.restore();
 }
 
+function drawVehicle(c, car) {
+    drawRotatedRect(c, car.x, car.y, car.w, car.h, car.angle, car.col, '#111');
+    
+    // Draw wheels with rotation
+    c.save();
+    c.translate(car.x - cam.x, car.y - cam.y);
+    c.rotate(car.angle);
+    
+    // Wheels
+    c.fillStyle = '#333';
+    const wheelOffsets = [
+        [-car.w / 3, -car.h / 2 + 2],
+        [car.w / 3, -car.h / 2 + 2],
+        [-car.w / 3, car.h / 2 - 2],
+        [car.w / 3, car.h / 2 - 2]
+    ];
+    
+    wheelOffsets.forEach(offset => {
+        c.save();
+        c.translate(offset[0], offset[1]);
+        c.rotate(car.wheelRotation);
+        c.fillRect(-2, -3, 4, 6);
+        c.restore();
+    });
+    
+    // Windows
+    c.fillStyle = '#bae6fd55';
+    c.fillRect(-car.w / 2 + 3, -car.h / 2 + 2, car.w - 6, car.h - 4);
+    
+    c.restore();
+}
+
+function drawPlayer(c, p) {
+    c.save();
+    c.translate(p.x - cam.x + (Math.random() - 0.5) * screenShake, p.y - cam.y + (Math.random() - 0.5) * screenShake);
+    c.rotate(p.angle);
+    
+    // Body
+    c.fillStyle = p.color;
+    c.fillRect(-8, -5, 16, 10);
+    
+    // Head with animation
+    const headBob = Math.sin(p.animFrame * Math.PI / 2) * 1;
+    c.fillStyle = p.head;
+    c.beginPath();
+    c.arc(0, -6 + headBob, 4, 0, Math.PI * 2);
+    c.fill();
+    
+    // Gun
+    c.fillStyle = '#ffe066';
+    c.fillRect(6, -1, 8, 2);
+    
+    c.restore();
+}
+
 function draw() {
-    // Background
+    // Background with screen shake
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, 0, W, H);
 
@@ -704,12 +836,14 @@ function draw() {
         ctx.fill();
     });
 
-    // Live pedestrians
+    // Live pedestrians with animation
     peds.filter(p => p.alive).forEach(p => {
         ctx.save();
         ctx.translate(p.x - cam.x, p.y - cam.y);
+        
+        const legSwing = Math.sin(p.walkFrame * Math.PI / 2) * 2;
         ctx.fillStyle = p.col;
-        ctx.fillRect(-4, -4, 8, 8);
+        ctx.fillRect(-4 + legSwing, -4, 8, 8);
         ctx.fillStyle = '#fde68a';
         ctx.beginPath();
         ctx.arc(0, -6, 3, 0, Math.PI * 2);
@@ -717,42 +851,30 @@ function draw() {
         ctx.restore();
     });
 
-    // Cars
+    // Vehicles with wheels
     cars.filter(c => c.hp > 0).forEach(c => {
-        drawRotatedRect(ctx, c.x, c.y, c.w, c.h, c.angle, c.col, '#111');
-        ctx.save();
-        ctx.translate(c.x - cam.x, c.y - cam.y);
-        ctx.rotate(c.angle);
-        ctx.fillStyle = '#bae6fd55';
-        ctx.fillRect(-c.w / 2 + 3, -c.h / 2 + 2, c.w - 6, c.h - 4);
-        ctx.restore();
+        drawVehicle(ctx, c);
     });
 
-    // Cop cars
+    // Cop cars with lights
     cops.forEach(c => {
-        drawRotatedRect(ctx, c.x, c.y, c.w, c.h, c.angle, '#1d4ed8', '#60a5fa');
+        drawVehicle(ctx, c);
+        
+        // Police lights
         ctx.save();
         ctx.translate(c.x - cam.x, c.y - cam.y);
         ctx.rotate(c.angle);
-        ctx.fillStyle = Math.floor(Date.now() / 200) % 2 === 0 ? '#f43f5e' : '#60a5fa';
-        ctx.fillRect(-4, -2, 8, 4);
+        const isRedLight = Math.floor(Date.now() / 200) % 2 === 0;
+        ctx.fillStyle = isRedLight ? '#f43f5e' : '#60a5fa';
+        ctx.fillRect(-4, -2, 4, 4);
+        ctx.fillStyle = isRedLight ? '#60a5fa' : '#f43f5e';
+        ctx.fillRect(4, -2, 4, 4);
         ctx.restore();
     });
 
-    // Player on foot
+    // Player
     if (!player.inCar) {
-        ctx.save();
-        ctx.translate(player.x - cam.x, player.y - cam.y);
-        ctx.rotate(player.angle);
-        ctx.fillStyle = player.color;
-        ctx.fillRect(-8, -5, 16, 10);
-        ctx.fillStyle = '#fde68a';
-        ctx.beginPath();
-        ctx.arc(0, 0, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffe066';
-        ctx.fillRect(6, -1, 8, 2);
-        ctx.restore();
+        drawPlayer(ctx, player);
     }
 
     // Bullets
@@ -761,6 +883,9 @@ function draw() {
         ctx.beginPath();
         ctx.arc(b.x - cam.x, b.y - cam.y, 3, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = '#ffab40';
+        ctx.lineWidth = 1;
+        ctx.stroke();
     });
 
     copBullets.forEach(b => {
@@ -770,23 +895,27 @@ function draw() {
         ctx.fill();
     });
 
-    // Particles
+    // Particles with gravity
     particles.forEach(p => {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.col;
         ctx.beginPath();
-        ctx.arc(p.x - cam.x, p.y - cam.y, 2.5, 0, Math.PI * 2);
+        ctx.arc(p.x - cam.x, p.y - cam.y, p.size, 0, Math.PI * 2);
         ctx.fill();
     });
     ctx.globalAlpha = 1;
 
-    // Explosions
+    // Explosions with better effects
     explosions.forEach(e => {
         ctx.globalAlpha = e.life;
         ctx.fillStyle = COLORS.explosion;
         ctx.beginPath();
         ctx.arc(e.x - cam.x, e.y - cam.y, e.radius, 0, Math.PI * 2);
         ctx.fill();
+        
+        ctx.strokeStyle = '#ffab40';
+        ctx.lineWidth = 2;
+        ctx.stroke();
     });
     ctx.globalAlpha = 1;
 
@@ -802,7 +931,7 @@ function draw() {
     mctx.fillRect(player.x * scl - 2, player.y * scl - 2, 4, 4);
 
     cops.forEach(c => {
-        mctx.fillStyle = '#60a5fa';
+        mctx.fillStyle = '#f43f5e';
         mctx.fillRect(c.x * scl - 1, c.y * scl - 1, 3, 3);
     });
 
@@ -833,7 +962,8 @@ function showOver() {
             LEVEL: ${level}<br>
             CASH EARNED: $${cash}<br>
             WANTED LEVEL: ${'★'.repeat(Math.min(5, wanted))}${'☆'.repeat(5 - Math.min(5, wanted))}<br>
-            MISSIONS COMPLETED: ${missions.filter(m => m.completed).length}
+            MISSIONS COMPLETED: ${missions.filter(m => m.completed).length}<br>
+            SKIN: ${PLAYER_SKINS[currentSkin].name}
         </p>
         <button id="obtn">[ RESPAWN ]</button>
     `;
