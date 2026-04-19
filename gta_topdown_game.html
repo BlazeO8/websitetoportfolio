@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA: Pixel City - Enhanced Edition</title>
+    <link rel="stylesheet" href="gta_styles.css">
+</head>
+<body>
+    <div id="gw">
+        <div id="hud">
+            <div class="title">GTA: PIXEL CITY</div>
+            <div>LEVEL <span id="level" style="color:#4ade80">1</span></div>
+            <div>HP <span id="hp-bar" style="color:#4ade80">■■■■■</span></div>
+            <div>$ <span id="cash" style="color:#4ade80">0</span></div>
+            <div>WANTED <span id="stars-hud">☆☆☆☆☆</span></div>
+            <div>WEAPON <span id="weapon" style="color:#60a5fa">PISTOL</span></div>
+            <div>AMMO <span id="ammo" style="color:#60a5fa">∞</span></div>
+        </div>
+
+        <div id="mission-info">
+            MISSION: <span id="mission-type">ELIMINATION</span> | <span id="mission-progress">0</span>/<span id="mission-target">5</span>
+        </div>
+
+        <div id="wrap">
+            <canvas id="gc" width="560" height="480"></canvas>
+            <canvas id="minimap" width="100" height="100"></canvas>
+            <div id="overlay">
+                <h2>GTA: PIXEL CITY</h2>
+                <p>Drive cars · Shoot enemies · Evade cops<br>Ram pedestrians for cash · Get stars for chaos<br>5 wanted stars = cops swarm you!</p>
+                <button id="obtn">[ START GAME ]</button>
+                <p style="font-size:8px;color:#555">W A S D = Drive &nbsp;|&nbsp; MOUSE = Aim &nbsp;|&nbsp; CLICK / SPACE = Shoot<br>F = Enter/Exit Car &nbsp;|&nbsp; E = Steal nearest car &nbsp;|&nbsp; Q = Weapon Cycle</p>
+            </div>
+        </div>
+
+        <div id="ctrl">
+            <span><span class="kb">W A S D</span> Move/Drive</span>
+            <span><span class="kb">E</span> Steal car</span>
+            <span><span class="kb">F</span> Exit car</span>
+            <span><span class="kb">Q</span> Cycle weapon</span>
+            <span><span class="kb">CLICK</span> Shoot</span>
+            <span><span class="kb">SPACE</span> Shoot</span>
+            <span><span class="kb">M</span> Active Mission</span>
+        </div>
+
+        <div id="notification"></div>
+    </div>
+    <script src="gta_game.js"></script>
+</body>
+</html>
