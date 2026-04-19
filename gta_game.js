@@ -1,6 +1,6 @@
 // ============================================
-// GTA: PIXEL CITY - ENHANCED EDITION v3.0
-// BIGGER MAP + VEHICLE TYPES + ANIMATIONS + EFFECTS
+// GTA: PIXEL CITY - ENHANCED EDITION v3.0 (ORIGINAL MAP)
+// v3 features + v2 map/world size
 // ============================================
 
 const cv = document.getElementById('gc');
@@ -9,7 +9,7 @@ const mm = document.getElementById('minimap');
 const mctx = mm.getContext('2d');
 
 const W = 560, H = 480;
-const WORLD = 3600; // BIGGER MAP!
+const WORLD = 1800; // ORIGINAL MAP SIZE
 
 const overlay = document.getElementById('overlay');
 const obtn = document.getElementById('obtn');
@@ -28,7 +28,7 @@ let keys = {}, mouse = { x: W / 2, y: H / 2, down: false };
 let cam, player, cars, peds, cops, bullets, copBullets, particles, explosions;
 let wanted, cash, hp, score, state = 'idle', animId, lastT = 0;
 let level = 1, missions = [], activeMission = null, missionComplete = false;
-let screenShake = 0; // For explosion effects
+let screenShake = 0;
 
 // ============================================
 // WEAPON SYSTEM
@@ -44,14 +44,14 @@ let currentWeapon = 'PISTOL';
 let ammo = { PISTOL: Infinity, RIFLE: 0, SHOTGUN: 0, MINIGUN: 0 };
 
 // ============================================
-// VEHICLE TYPES - MULTIPLE VEHICLES!
+// VEHICLE TYPES
 // ============================================
 const VEHICLE_TYPES = {
-    CAR: { w: 26, h: 14, color: ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6'], speed: 5, handling: 0.045 },
-    TRUCK: { w: 35, h: 18, color: ['#c0392b', '#34495e'], speed: 4, handling: 0.03 },
-    BIKE: { w: 20, h: 10, color: ['#e67e22', '#16a085', '#8e44ad'], speed: 6, handling: 0.08 },
-    POLICE: { w: 26, h: 14, color: ['#1d4ed8'], speed: 5.5, handling: 0.05 },
-    AMBULANCE: { w: 28, h: 15, color: ['#ecf0f1'], speed: 4.5, handling: 0.04 }
+    CAR:       { w: 26, h: 14, color: ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6'], speed: 5,   handling: 0.045 },
+    TRUCK:     { w: 35, h: 18, color: ['#c0392b', '#34495e'],                                  speed: 4,   handling: 0.03  },
+    BIKE:      { w: 20, h: 10, color: ['#e67e22', '#16a085', '#8e44ad'],                       speed: 6,   handling: 0.08  },
+    POLICE:    { w: 26, h: 14, color: ['#1d4ed8'],                                             speed: 5.5, handling: 0.05  },
+    AMBULANCE: { w: 28, h: 15, color: ['#ecf0f1'],                                             speed: 4.5, handling: 0.04  }
 };
 
 // ============================================
@@ -59,10 +59,10 @@ const VEHICLE_TYPES = {
 // ============================================
 const PLAYER_SKINS = [
     { name: 'Default', color: '#f5c542', head: '#fde68a' },
-    { name: 'Red', color: '#f43f5e', head: '#fca5a5' },
-    { name: 'Blue', color: '#3b82f6', head: '#93c5fd' },
-    { name: 'Green', color: '#10b981', head: '#a7f3d0' },
-    { name: 'Purple', color: '#a855f7', head: '#e9d5ff' }
+    { name: 'Red',     color: '#f43f5e', head: '#fca5a5' },
+    { name: 'Blue',    color: '#3b82f6', head: '#93c5fd' },
+    { name: 'Green',   color: '#10b981', head: '#a7f3d0' },
+    { name: 'Purple',  color: '#a855f7', head: '#e9d5ff' }
 ];
 
 let currentSkin = 0;
@@ -71,61 +71,62 @@ let currentSkin = 0;
 // COLOR SCHEME
 // ============================================
 const COLORS = {
-    road: '#1c1c1c',
-    lane: '#f5c542',
+    road:     '#1c1c1c',
+    lane:     '#f5c542',
     sidewalk: '#2a2a2a',
-    grass: '#1a3a1a',
+    grass:    '#1a3a1a',
     building: ['#2d2d3a', '#3a2d2d', '#2d3a2d', '#3a3a2d', '#4a3a2d', '#2d3a3a'],
-    car: '#e74c3c',
-    cop: '#3498db',
-    ped: ['#f39c12', '#e67e22', '#16a085', '#8e44ad', '#c0392b', '#2980b9'],
-    bullet: '#ffe066',
-    copBullet: '#60a5fa',
-    explosion: '#ff6b35'
+    car:      ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22'],
+    cop:      '#3498db',
+    ped:      ['#f39c12', '#e67e22', '#16a085', '#8e44ad', '#c0392b', '#2980b9'],
+    bullet:   '#ffe066',
+    copBullet:'#60a5fa',
+    explosion:'#ff6b35'
 };
 
 // ============================================
-// EXPANDED ROAD SYSTEM
+// ORIGINAL ROAD LAYOUT (v2)
 // ============================================
 const roads = [
-    // Horizontal roads
-    { x: 0, y: 200, w: WORLD, h: 80 },
-    { x: 0, y: 600, w: WORLD, h: 80 },
-    { x: 0, y: 1000, w: WORLD, h: 80 },
-    { x: 0, y: 1400, w: WORLD, h: 80 },
-    { x: 0, y: 1800, w: WORLD, h: 80 },
-    { x: 0, y: 2200, w: WORLD, h: 80 },
-    { x: 0, y: 2600, w: WORLD, h: 80 },
-    { x: 0, y: 3000, w: WORLD, h: 80 },
-    // Vertical roads
-    { x: 300, y: 0, w: 80, h: WORLD },
-    { x: 700, y: 0, w: 80, h: WORLD },
-    { x: 1100, y: 0, w: 80, h: WORLD },
-    { x: 1500, y: 0, w: 80, h: WORLD },
-    { x: 1900, y: 0, w: 80, h: WORLD },
-    { x: 2300, y: 0, w: 80, h: WORLD },
-    { x: 2700, y: 0, w: 80, h: WORLD },
-    { x: 3100, y: 0, w: 80, h: WORLD }
+    { x: 0,    y: 200,  w: WORLD, h: 80 },
+    { x: 0,    y: 500,  w: WORLD, h: 80 },
+    { x: 0,    y: 800,  w: WORLD, h: 80 },
+    { x: 0,    y: 1100, w: WORLD, h: 80 },
+    { x: 0,    y: 1400, w: WORLD, h: 80 },
+    { x: 150,  y: 0,    w: 80, h: WORLD },
+    { x: 450,  y: 0,    w: 80, h: WORLD },
+    { x: 800,  y: 0,    w: 80, h: WORLD },
+    { x: 1100, y: 0,    w: 80, h: WORLD },
+    { x: 1500, y: 0,    w: 80, h: WORLD }
 ];
 
 let buildings = [];
 
 // ============================================
-// BUILDING GENERATION (BIGGER MAP)
+// ORIGINAL BUILDING GENERATION (v2)
 // ============================================
 function genBuildings() {
     buildings = [];
-    const zones = [];
-    
-    // Generate building zones across the bigger map
-    for (let x = 0; x < WORLD; x += 400) {
-        for (let y = 0; y < WORLD; y += 400) {
-            if ((x + 200 < WORLD && y + 200 < WORLD) && 
-                !roads.some(r => x > r.x - 100 && x < r.x + r.w + 100 && y > r.y - 100 && y < r.y + r.h + 100)) {
-                zones.push({ x: x, y: y, w: 350, h: 350 });
-            }
-        }
-    }
+    const zones = [
+        { x: 240,  y: 0,    w: 200, h: 190 },
+        { x: 540,  y: 0,    w: 250, h: 190 },
+        { x: 890,  y: 0,    w: 200, h: 190 },
+        { x: 1200, y: 0,    w: 250, h: 190 },
+        { x: 1550, y: 0,    w: 200, h: 190 },
+        { x: 240,  y: 290,  w: 200, h: 200 },
+        { x: 540,  y: 290,  w: 250, h: 200 },
+        { x: 890,  y: 290,  w: 200, h: 200 },
+        { x: 1200, y: 290,  w: 250, h: 200 },
+        { x: 1550, y: 290,  w: 200, h: 200 },
+        { x: 240,  y: 590,  w: 200, h: 300 },
+        { x: 540,  y: 590,  w: 250, h: 300 },
+        { x: 890,  y: 590,  w: 200, h: 300 },
+        { x: 1200, y: 590,  w: 250, h: 300 },
+        { x: 1550, y: 590,  w: 200, h: 300 },
+        { x: 240,  y: 1000, w: 1300, h: WORLD - 1000 },
+        { x: 0,    y: 0,    w: 140,  h: WORLD },
+        { x: WORLD - 140, y: 0, w: 140, h: WORLD }
+    ];
 
     zones.forEach(z => {
         for (let bx = z.x + 8; bx + 30 < z.x + z.w; bx += 50 + Math.random() * 20) {
@@ -181,43 +182,39 @@ function showNotification(text, duration = 2000) {
 }
 
 // ============================================
-// PARTICLES & EFFECTS - ENHANCED!
+// PARTICLES & EFFECTS — ENHANCED (v3)
 // ============================================
 function spawnParticle(x, y, col, n = 6, size = 2.5) {
     for (let i = 0; i < n; i++) {
         const a = Math.random() * Math.PI * 2;
         const spd = Math.random() * 4 + 0.5;
-        particles.push({ 
-            x, y, 
-            vx: Math.cos(a) * spd, 
-            vy: Math.sin(a) * spd, 
-            life: 1, 
-            col, 
-            size: size,
+        particles.push({
+            x, y,
+            vx: Math.cos(a) * spd,
+            vy: Math.sin(a) * spd,
+            life: 1,
+            col,
+            size,
             gravity: 0.1
         });
     }
 }
 
 function spawnExplosion(x, y) {
-    screenShake = 15; // Screen shake effect!
+    screenShake = 15;
     explosions.push({ x, y, radius: 1, maxRadius: 100, life: 1, particles: [] });
-    
-    // Explosion particles with better animation
     for (let i = 0; i < 20; i++) {
         const a = Math.random() * Math.PI * 2;
         const spd = Math.random() * 5 + 3;
         explosions[explosions.length - 1].particles.push({
-            x, y, 
-            vx: Math.cos(a) * spd, 
-            vy: Math.sin(a) * spd, 
-            life: 1, 
+            x, y,
+            vx: Math.cos(a) * spd,
+            vy: Math.sin(a) * spd,
+            life: 1,
             col: [COLORS.explosion, '#ffab40', '#ff6b35'][Math.floor(Math.random() * 3)],
             size: Math.random() * 3 + 1
         });
     }
-    
-    // Camera shake
     for (let i = 0; i < 3; i++) {
         setTimeout(() => screenShake = 10, i * 50);
     }
@@ -241,8 +238,8 @@ function initGame() {
 
     cam = { x: 0, y: 0 };
     player = {
-        x: WORLD / 2, y: WORLD / 2, w: 16, h: 10, angle: 0, spd: 0,
-        inCar: null, shootCD: 0, 
+        x: 240, y: 240, w: 16, h: 10, angle: 0, spd: 0,
+        inCar: null, shootCD: 0,
         ...PLAYER_SKINS[currentSkin],
         animFrame: 0
     };
@@ -255,17 +252,17 @@ function initGame() {
     explosions = [];
 
     // Spawn multiple vehicle types
-    const vehicleTypes = Object.keys(VEHICLE_TYPES);
-    for (let i = 0; i < 35; i++) {
+    const vehicleTypeKeys = Object.keys(VEHICLE_TYPES);
+    for (let i = 0; i < 22; i++) {
         const p = roadPos();
-        const vType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+        const vType = vehicleTypeKeys[Math.floor(Math.random() * vehicleTypeKeys.length)];
         const vData = VEHICLE_TYPES[vType];
-        
         cars.push({
-            x: p.x, y: p.y, w: vData.w, h: vData.h, 
+            x: p.x, y: p.y,
+            w: vData.w, h: vData.h,
             angle: Math.random() * Math.PI * 2,
-            spd: 0, driver: null, 
-            col: vData.color[Math.floor(Math.random() * vData.color.length)], 
+            spd: 0, driver: null,
+            col: vData.color[Math.floor(Math.random() * vData.color.length)],
             hp: 3,
             type: vType,
             maxSpeed: vData.speed,
@@ -276,12 +273,12 @@ function initGame() {
     }
 
     // Spawn pedestrians
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 35; i++) {
         const p = roadPos();
         peds.push({
-            x: p.x, y: p.y, w: 8, h: 8, 
+            x: p.x, y: p.y, w: 8, h: 8,
             angle: Math.random() * Math.PI * 2,
-            spd: 0.8, t: Math.random() * 100, 
+            spd: 0.8, t: Math.random() * 100,
             col: COLORS.ped[Math.floor(Math.random() * COLORS.ped.length)],
             alive: true, flee: 0,
             walkFrame: 0
@@ -291,7 +288,7 @@ function initGame() {
     updateHUD();
     updateMissionDisplay();
     state = 'playing';
-    showNotification('🎮 WELCOME TO PIXEL CITY | BIGGER & BETTER! 🎮');
+    showNotification('MISSION: ' + activeMission.type.toUpperCase() + ' (' + activeMission.target + ' targets)');
 }
 
 // ============================================
@@ -308,7 +305,6 @@ function updateHUD() {
     starsEl.textContent = '★'.repeat(s) + '☆'.repeat(5 - s);
     starsEl.style.color = s >= 4 ? '#f43f5e' : s >= 2 ? '#f5c542' : '#aaa';
 
-    // Slowly regenerate ammo
     if (Math.random() < 0.01) {
         const weaponList = Object.keys(WEAPONS);
         weaponList.forEach(w => {
@@ -345,7 +341,7 @@ function updateMissionDisplay() {
 function spawnCop() {
     const p = roadPos();
     cops.push({
-        x: p.x, y: p.y, w: 26, h: 14, 
+        x: p.x, y: p.y, w: 26, h: 14,
         angle: 0, spd: 0,
         shootCD: 80, hp: 3, alertT: 0,
         wheelRotation: 0
@@ -406,7 +402,7 @@ function update(dt) {
         player.x = Math.max(5, Math.min(WORLD - 5, player.x));
         player.y = Math.max(5, Math.min(WORLD - 5, player.y));
         player.angle = Math.atan2(wy - player.y, wx - player.x);
-        
+
         // Walking animation
         if (dx || dy) {
             player.animFrame = (player.animFrame + 0.2) % 4;
@@ -525,6 +521,7 @@ function update(dt) {
             return false;
         }
 
+        // Hit cops
         cops.forEach(c => {
             if (Math.hypot(b.x - c.x, b.y - c.y) < 16) {
                 c.hp -= b.damage;
@@ -540,6 +537,7 @@ function update(dt) {
             }
         });
 
+        // Hit pedestrians
         peds.forEach(p => {
             if (p.alive && Math.hypot(b.x - p.x, b.y - p.y) < 10) {
                 p.alive = false;
@@ -555,6 +553,7 @@ function update(dt) {
             }
         });
 
+        // Hit cars
         cars.forEach(c => {
             if (!c.driver && Math.hypot(b.x - c.x, b.y - c.y) < 18) {
                 c.hp -= b.damage;
@@ -593,6 +592,9 @@ function update(dt) {
             c.x = nx;
             c.y = ny;
         }
+
+        // Wheel animation for cop cars
+        c.wheelRotation = (c.wheelRotation || 0) + spd * 0.05;
 
         c.shootCD = Math.max(0, c.shootCD - dt);
         if (dist < 200 && c.shootCD <= 0) {
@@ -672,7 +674,7 @@ function update(dt) {
         wantedTimer = 0;
     }
 
-    // ===== PARTICLES =====
+    // ===== PARTICLES (with gravity) =====
     particles = particles.filter(p => {
         p.x += p.vx * s;
         p.y += (p.vy + p.gravity) * s;
@@ -714,11 +716,14 @@ function update(dt) {
 }
 
 // ============================================
-// DRAWING FUNCTIONS - ENHANCED!
+// DRAWING — SCREEN SHAKE AWARE
 // ============================================
 function drawRotatedRect(c, x, y, w, h, angle, fillCol, strokeCol) {
     c.save();
-    c.translate(x - cam.x + (Math.random() - 0.5) * screenShake, y - cam.y + (Math.random() - 0.5) * screenShake);
+    c.translate(
+        x - cam.x + (Math.random() - 0.5) * screenShake,
+        y - cam.y + (Math.random() - 0.5) * screenShake
+    );
     c.rotate(angle);
     c.fillStyle = fillCol;
     c.fillRect(-w / 2, -h / 2, w, h);
@@ -731,319 +736,135 @@ function drawRotatedRect(c, x, y, w, h, angle, fillCol, strokeCol) {
 }
 
 // ============================================
-// DRAWING VEHICLES - UNIQUE DESIGNS!
+// VEHICLE DRAWING — UNIQUE DESIGNS (v3)
 // ============================================
 function drawVehicle(c, car) {
     c.save();
     c.translate(car.x - cam.x, car.y - cam.y);
     c.rotate(car.angle);
-    
-    // Draw different vehicle types with unique shapes
-    switch(car.type) {
-        case 'CAR':
-            drawCar(c, car);
-            break;
-        case 'TRUCK':
-            drawTruck(c, car);
-            break;
-        case 'BIKE':
-            drawBike(c, car);
-            break;
-        case 'POLICE':
-            drawPoliceCar(c, car);
-            break;
-        case 'AMBULANCE':
-            drawAmbulance(c, car);
-            break;
-        default:
-            drawCar(c, car);
+
+    switch (car.type) {
+        case 'CAR':       drawCar(c, car);       break;
+        case 'TRUCK':     drawTruck(c, car);     break;
+        case 'BIKE':      drawBike(c, car);      break;
+        case 'POLICE':    drawPoliceCar(c, car); break;
+        case 'AMBULANCE': drawAmbulance(c, car); break;
+        default:          drawCar(c, car);
     }
-    
+
     c.restore();
 }
 
-// SEDAN CAR DESIGN
 function drawCar(c, car) {
-    // Body - sedan shape with curved top
     c.fillStyle = car.col;
-    
-    // Bottom chassis
-    c.fillRect(-car.w/2, -car.h/2 + 3, car.w, car.h - 5);
-    
-    // Top cabin (rounded rectangle effect)
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 5);
-    
-    // Front bumper
+    c.fillRect(-car.w / 2, -car.h / 2 + 3, car.w, car.h - 5);
+    c.fillRect(-car.w / 2 + 2, -car.h / 2 - 2, car.w - 4, 5);
     c.fillStyle = '#333';
-    c.fillRect(-car.w/2, -car.h/2 + 3, 3, car.h - 5);
-    
-    // Headlights
+    c.fillRect(-car.w / 2, -car.h / 2 + 3, 3, car.h - 5);
     c.fillStyle = '#ffff99';
-    c.fillRect(-car.w/2 + 1, -car.h/2 + 4, 2, 1);
-    c.fillRect(-car.w/2 + 1, -car.h/2 + 6, 2, 1);
-    
-    // Windows
+    c.fillRect(-car.w / 2 + 1, -car.h / 2 + 4, 2, 1);
+    c.fillRect(-car.w / 2 + 1, -car.h / 2 + 6, 2, 1);
     c.fillStyle = '#87ceeb88';
-    c.fillRect(-car.w/2 + 3, -car.h/2 - 1, car.w - 6, 3);
-    
-    // Taillights
+    c.fillRect(-car.w / 2 + 3, -car.h / 2 - 1, car.w - 6, 3);
     c.fillStyle = '#ff4444';
-    c.fillRect(car.w/2 - 3, -car.h/2 + 4, 2, 1);
-    c.fillRect(car.w/2 - 3, -car.h/2 + 6, 2, 1);
-    
-    // Wheels
+    c.fillRect(car.w / 2 - 3, -car.h / 2 + 4, 2, 1);
+    c.fillRect(car.w / 2 - 3, -car.h / 2 + 6, 2, 1);
     drawWheels(c, car);
 }
 
-// TRUCK DESIGN - BIG & BOXY
 function drawTruck(c, car) {
-    // Main cargo area - large rectangular box
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2, -car.h/2, car.w * 0.7, car.h);
-    
-    // Cargo bed details - ridges
+    c.fillRect(-car.w / 2, -car.h / 2, car.w * 0.7, car.h);
     c.strokeStyle = '#00000055';
     c.lineWidth = 1;
-    for (let i = -car.h/2 + 2; i < car.h/2; i += 3) {
+    for (let i = -car.h / 2 + 2; i < car.h / 2; i += 3) {
         c.beginPath();
-        c.moveTo(-car.w/2 + 2, i);
-        c.lineTo(-car.w/2 + car.w * 0.7 - 2, i);
+        c.moveTo(-car.w / 2 + 2, i);
+        c.lineTo(-car.w / 2 + car.w * 0.7 - 2, i);
         c.stroke();
     }
-    
-    // Cabin (front)
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2 + car.w * 0.65, -car.h/2, car.w * 0.35, car.h);
-    
-    // Cabin roof
-    c.fillStyle = car.col;
+    c.fillRect(-car.w / 2 + car.w * 0.65, -car.h / 2, car.w * 0.35, car.h);
     c.beginPath();
-    c.moveTo(-car.w/2 + car.w * 0.65, -car.h/2 - 1);
-    c.lineTo(-car.w/2 + car.w, -car.h/2 - 1);
-    c.lineTo(-car.w/2 + car.w - 2, -car.h/2 - 3);
-    c.lineTo(-car.w/2 + car.w * 0.65 + 2, -car.h/2 - 3);
+    c.moveTo(-car.w / 2 + car.w * 0.65, -car.h / 2 - 1);
+    c.lineTo(-car.w / 2 + car.w, -car.h / 2 - 1);
+    c.lineTo(-car.w / 2 + car.w - 2, -car.h / 2 - 3);
+    c.lineTo(-car.w / 2 + car.w * 0.65 + 2, -car.h / 2 - 3);
     c.fill();
-    
-    // Windows
     c.fillStyle = '#87ceeb88';
-    c.fillRect(-car.w/2 + car.w * 0.67, -car.h/2 + 2, car.w * 0.3, 3);
-    
-    // Headlights
+    c.fillRect(-car.w / 2 + car.w * 0.67, -car.h / 2 + 2, car.w * 0.3, 3);
     c.fillStyle = '#ffff99';
-    c.fillRect(-car.w/2 + car.w * 0.68, -car.h/2 + 2, 1.5, 1);
-    c.fillRect(-car.w/2 + car.w * 0.68, -car.h/2 + 5, 1.5, 1);
-    
-    // Wheels (bigger for truck)
+    c.fillRect(-car.w / 2 + car.w * 0.68, -car.h / 2 + 2, 1.5, 1);
+    c.fillRect(-car.w / 2 + car.w * 0.68, -car.h / 2 + 5, 1.5, 1);
     drawTruckWheels(c, car);
 }
 
-// MOTORCYCLE DESIGN - SLEEK & SMALL
 function drawBike(c, car) {
-    // Body - streamlined
     c.fillStyle = car.col;
-    
-    // Main body frame
     c.beginPath();
-    c.moveTo(-car.w/2, 0);
-    c.quadraticCurveTo(-car.w/2 + car.w/3, -car.h/2, car.w/2, 0);
-    c.quadraticCurveTo(-car.w/2 + car.w/3, car.h/2, -car.w/2, 0);
+    c.moveTo(-car.w / 2, 0);
+    c.quadraticCurveTo(-car.w / 2 + car.w / 3, -car.h / 2, car.w / 2, 0);
+    c.quadraticCurveTo(-car.w / 2 + car.w / 3, car.h / 2, -car.w / 2, 0);
     c.fill();
-    
-    // Front fairing
     c.fillStyle = '#000';
     c.beginPath();
-    c.moveTo(car.w/2 - 3, -car.h/2 + 1);
-    c.lineTo(car.w/2, -car.h/2);
-    c.lineTo(car.w/2, car.h/2);
-    c.lineTo(car.w/2 - 3, car.h/2 - 1);
+    c.moveTo(car.w / 2 - 3, -car.h / 2 + 1);
+    c.lineTo(car.w / 2, -car.h / 2);
+    c.lineTo(car.w / 2, car.h / 2);
+    c.lineTo(car.w / 2 - 3, car.h / 2 - 1);
     c.fill();
-    
-    // Headlight
     c.fillStyle = '#ffff99';
     c.beginPath();
-    c.arc(car.w/2 - 1, 0, 1.5, 0, Math.PI * 2);
+    c.arc(car.w / 2 - 1, 0, 1.5, 0, Math.PI * 2);
     c.fill();
-    
-    // Engine detail
     c.fillStyle = '#666';
-    c.fillRect(-car.w/2 + 2, -car.h/2 + 2, 3, 3);
-    
-    // Bike wheels (thin)
+    c.fillRect(-car.w / 2 + 2, -car.h / 2 + 2, 3, 3);
     drawBikeWheels(c, car);
 }
 
-// POLICE CAR DESIGN
 function drawPoliceCar(c, car) {
-    // Body
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2, -car.h/2 + 3, car.w, car.h - 5);
-    
-    // Police stripe down the middle
+    c.fillRect(-car.w / 2, -car.h / 2 + 3, car.w, car.h - 5);
     c.fillStyle = '#ffffff';
-    c.fillRect(-2, -car.h/2 + 3, 4, car.h - 5);
-    
-    // Top cabin
+    c.fillRect(-2, -car.h / 2 + 3, 4, car.h - 5);
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 5);
-    
-    // Police lights on top
+    c.fillRect(-car.w / 2 + 2, -car.h / 2 - 2, car.w - 4, 5);
     c.fillStyle = '#f43f5e';
-    c.fillRect(-5, -car.h/2 - 3, 3, 2);
+    c.fillRect(-5, -car.h / 2 - 3, 3, 2);
     c.fillStyle = '#60a5fa';
-    c.fillRect(2, -car.h/2 - 3, 3, 2);
-    
-    // Windows
+    c.fillRect(2, -car.h / 2 - 3, 3, 2);
     c.fillStyle = '#87ceeb88';
-    c.fillRect(-car.w/2 + 3, -car.h/2 - 1, car.w - 6, 3);
-    
-    // Front badge
-    c.fillStyle = '#ffffff';
-    c.fillRect(-car.w/2 + 1, -car.h/2 + 4, 4, 2);
-    c.fillStyle = '#000';
-    c.font = 'bold 6px Arial';
-    c.fillText('POLICE', -car.w/2 + 2, -car.h/2 + 5);
-    
-    // Wheels
+    c.fillRect(-car.w / 2 + 3, -car.h / 2 - 1, car.w - 6, 3);
     drawWheels(c, car);
 }
 
-// AMBULANCE DESIGN
 function drawAmbulance(c, car) {
-    // Body - elongated
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2, -car.h/2 + 2, car.w, car.h - 4);
-    
-    // Red cross stripe
+    c.fillRect(-car.w / 2, -car.h / 2 + 2, car.w, car.h - 4);
     c.fillStyle = '#ff0000';
-    c.fillRect(-1, -car.h/2 + 3, 2, car.h - 6);
-    c.fillRect(-3, -car.h/2 + 5, 6, 2);
-    
-    // Cabin
+    c.fillRect(-1, -car.h / 2 + 3, 2, car.h - 6);
+    c.fillRect(-3, -car.h / 2 + 5, 6, 2);
     c.fillStyle = car.col;
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 1, car.w - 4, 4);
-    
-    // Windows
+    c.fillRect(-car.w / 2 + 2, -car.h / 2 - 1, car.w - 4, 4);
     c.fillStyle = '#87ceeb88';
-    c.fillRect(-car.w/2 + 3, -car.h/2 - 0.5, car.w - 6, 2);
-    
-    // Lights
+    c.fillRect(-car.w / 2 + 3, -car.h / 2 - 0.5, car.w - 6, 2);
     c.fillStyle = '#ff0000';
-    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, 2, 1);
-    
-    // Medical symbol on side
-    c.fillStyle = '#ff0000';
-    c.fillRect(-2, car.h/2 - 4, 4, 1);
-    c.fillRect(-0.5, car.h/2 - 5, 1, 3);
-    
-    // Wheels
+    c.fillRect(-car.w / 2 + 2, -car.h / 2 - 2, 2, 1);
     drawWheels(c, car);
 }
 
-// WHEEL DRAWING FUNCTIONS
-function drawWheels(c, car) {
-    c.fillStyle = '#333';
-    
-    // Front wheels
-    c.save();
-    c.translate(-car.w/3, -car.h/2 + 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    c.save();
-    c.translate(-car.w/3, car.h/2 - 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    // Rear wheels
-    c.save();
-    c.translate(car.w/3, -car.h/2 + 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3, car.h/2 - 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-}
-
-function drawTruckWheels(c, car) {
-    c.fillStyle = '#333';
-    
-    // Front wheels (smaller)
-    c.save();
-    c.translate(-car.w/2 + 5, -car.h/2 + 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    c.save();
-    c.translate(-car.w/2 + 5, car.h/2 - 1);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2.5);
-    c.restore();
-    
-    // Rear wheels (bigger dual wheels)
-    c.save();
-    c.translate(car.w/3, -car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3 + 2, -car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3, car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
-    
-    c.save();
-    c.translate(car.w/3 + 2, car.h/2);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 3);
-    c.restore();
-}
-
-function drawBikeWheels(c, car) {
-    c.fillStyle = '#333';
-    
-    // Front wheel
-    c.save();
-    c.translate(car.w/2 - 4, 0);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2);
-    c.restore();
-    
-    // Rear wheel
-    c.save();
-    c.translate(-car.w/2 + 2, 0);
-    c.rotate(car.wheelRotation);
-    drawWheel(c, 2);
-    c.restore();
-}
-
+// ============================================
+// WHEEL HELPERS
+// ============================================
 function drawWheel(c, size) {
-    // Tire
     c.fillStyle = '#111';
     c.beginPath();
     c.arc(0, 0, size, 0, Math.PI * 2);
     c.fill();
-    
-    // Rim
     c.fillStyle = '#888';
     c.beginPath();
     c.arc(0, 0, size * 0.6, 0, Math.PI * 2);
     c.fill();
-    
-    // Tread pattern
     c.strokeStyle = '#333';
     c.lineWidth = 0.5;
     for (let i = 0; i < 8; i++) {
@@ -1055,31 +876,77 @@ function drawWheel(c, size) {
     }
 }
 
+function drawWheels(c, car) {
+    const positions = [
+        [-car.w / 3, -car.h / 2 + 1],
+        [-car.w / 3,  car.h / 2 - 1],
+        [ car.w / 3, -car.h / 2 + 1],
+        [ car.w / 3,  car.h / 2 - 1]
+    ];
+    positions.forEach(([wx, wy]) => {
+        c.save();
+        c.translate(wx, wy);
+        c.rotate(car.wheelRotation);
+        drawWheel(c, 2.5);
+        c.restore();
+    });
+}
+
+function drawTruckWheels(c, car) {
+    const frontPos = [
+        [-car.w / 2 + 5, -car.h / 2 + 1],
+        [-car.w / 2 + 5,  car.h / 2 - 1]
+    ];
+    const rearPos = [
+        [car.w / 3,     -car.h / 2],
+        [car.w / 3 + 2, -car.h / 2],
+        [car.w / 3,      car.h / 2],
+        [car.w / 3 + 2,  car.h / 2]
+    ];
+    frontPos.forEach(([wx, wy]) => {
+        c.save(); c.translate(wx, wy); c.rotate(car.wheelRotation); drawWheel(c, 2.5); c.restore();
+    });
+    rearPos.forEach(([wx, wy]) => {
+        c.save(); c.translate(wx, wy); c.rotate(car.wheelRotation); drawWheel(c, 3); c.restore();
+    });
+}
+
+function drawBikeWheels(c, car) {
+    [[ car.w / 2 - 4, 0], [-car.w / 2 + 2, 0]].forEach(([wx, wy]) => {
+        c.save(); c.translate(wx, wy); c.rotate(car.wheelRotation); drawWheel(c, 2); c.restore();
+    });
+}
+
+// ============================================
+// PLAYER DRAWING (animated, skinned)
+// ============================================
 function drawPlayer(c, p) {
     c.save();
-    c.translate(p.x - cam.x + (Math.random() - 0.5) * screenShake, p.y - cam.y + (Math.random() - 0.5) * screenShake);
+    c.translate(
+        p.x - cam.x + (Math.random() - 0.5) * screenShake,
+        p.y - cam.y + (Math.random() - 0.5) * screenShake
+    );
     c.rotate(p.angle);
-    
-    // Body
+
     c.fillStyle = p.color;
     c.fillRect(-8, -5, 16, 10);
-    
-    // Head with animation
+
     const headBob = Math.sin(p.animFrame * Math.PI / 2) * 1;
     c.fillStyle = p.head;
     c.beginPath();
     c.arc(0, -6 + headBob, 4, 0, Math.PI * 2);
     c.fill();
-    
-    // Gun
+
     c.fillStyle = '#ffe066';
     c.fillRect(6, -1, 8, 2);
-    
+
     c.restore();
 }
 
+// ============================================
+// MAIN DRAW LOOP
+// ============================================
 function draw() {
-    // Background with screen shake
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, 0, W, H);
 
@@ -1129,11 +996,10 @@ function draw() {
         ctx.fill();
     });
 
-    // Live pedestrians with animation
+    // Live pedestrians (animated)
     peds.filter(p => p.alive).forEach(p => {
         ctx.save();
         ctx.translate(p.x - cam.x, p.y - cam.y);
-        
         const legSwing = Math.sin(p.walkFrame * Math.PI / 2) * 2;
         ctx.fillStyle = p.col;
         ctx.fillRect(-4 + legSwing, -4, 8, 8);
@@ -1144,16 +1010,12 @@ function draw() {
         ctx.restore();
     });
 
-    // Vehicles with wheels
-    cars.filter(c => c.hp > 0).forEach(c => {
-        drawVehicle(ctx, c);
-    });
+    // Vehicles
+    cars.filter(c => c.hp > 0).forEach(c => drawVehicle(ctx, c));
 
-    // Cop cars with lights
+    // Cop cars with alternating lights
     cops.forEach(c => {
         drawVehicle(ctx, c);
-        
-        // Police lights
         ctx.save();
         ctx.translate(c.x - cam.x, c.y - cam.y);
         ctx.rotate(c.angle);
@@ -1170,7 +1032,7 @@ function draw() {
         drawPlayer(ctx, player);
     }
 
-    // Bullets
+    // Player bullets
     bullets.forEach(b => {
         ctx.fillStyle = '#ffe066';
         ctx.beginPath();
@@ -1181,6 +1043,7 @@ function draw() {
         ctx.stroke();
     });
 
+    // Cop bullets
     copBullets.forEach(b => {
         ctx.fillStyle = '#60a5fa';
         ctx.beginPath();
@@ -1188,7 +1051,7 @@ function draw() {
         ctx.fill();
     });
 
-    // Particles with gravity
+    // Particles (variable size + gravity)
     particles.forEach(p => {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.col;
@@ -1198,14 +1061,13 @@ function draw() {
     });
     ctx.globalAlpha = 1;
 
-    // Explosions with better effects
+    // Explosions with outline
     explosions.forEach(e => {
         ctx.globalAlpha = e.life;
         ctx.fillStyle = COLORS.explosion;
         ctx.beginPath();
         ctx.arc(e.x - cam.x, e.y - cam.y, e.radius, 0, Math.PI * 2);
         ctx.fill();
-        
         ctx.strokeStyle = '#ffab40';
         ctx.lineWidth = 2;
         ctx.stroke();
@@ -1224,7 +1086,7 @@ function draw() {
     mctx.fillRect(player.x * scl - 2, player.y * scl - 2, 4, 4);
 
     cops.forEach(c => {
-        mctx.fillStyle = '#f43f5e';
+        mctx.fillStyle = '#f43f5e'; // red cop blips (v3)
         mctx.fillRect(c.x * scl - 1, c.y * scl - 1, 3, 3);
     });
 
