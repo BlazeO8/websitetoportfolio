@@ -292,7 +292,7 @@ function initGame() {
     updateMissionDisplay();
     state = 'playing';
     showNotification('🎮 WELCOME TO PIXEL CITY 🎮');
-}
+
 // ============================================
 // HUD UPDATE
 // ============================================
