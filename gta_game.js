@@ -9,7 +9,7 @@ const mm = document.getElementById('minimap');
 const mctx = mm.getContext('2d');
 
 const W = 560, H = 480;
-const WORLD = 1800; // ORIGINAL MAP SIZE
+const WORLD = 3200; // EXPANDED MAP — original area preserved, new space added
 
 const overlay = document.getElementById('overlay');
 const obtn = document.getElementById('obtn');
@@ -85,29 +85,42 @@ const COLORS = {
 };
 
 // ============================================
-// ORIGINAL ROAD LAYOUT (v2)
+// ROAD LAYOUT — ORIGINAL (v2) + EXPANDED AREA
 // ============================================
 const roads = [
+    // ---- ORIGINAL 5 horizontal roads (auto-stretch to new WORLD width) ----
     { x: 0,    y: 200,  w: WORLD, h: 80 },
     { x: 0,    y: 500,  w: WORLD, h: 80 },
     { x: 0,    y: 800,  w: WORLD, h: 80 },
     { x: 0,    y: 1100, w: WORLD, h: 80 },
     { x: 0,    y: 1400, w: WORLD, h: 80 },
-    { x: 150,  y: 0,    w: 80, h: WORLD },
-    { x: 450,  y: 0,    w: 80, h: WORLD },
-    { x: 800,  y: 0,    w: 80, h: WORLD },
-    { x: 1100, y: 0,    w: 80, h: WORLD },
-    { x: 1500, y: 0,    w: 80, h: WORLD }
+    // ---- ORIGINAL 5 vertical roads (auto-stretch to new WORLD height) ----
+    { x: 150,  y: 0, w: 80, h: WORLD },
+    { x: 450,  y: 0, w: 80, h: WORLD },
+    { x: 800,  y: 0, w: 80, h: WORLD },
+    { x: 1100, y: 0, w: 80, h: WORLD },
+    { x: 1500, y: 0, w: 80, h: WORLD },
+    // ---- NEW horizontal roads in the y > 1800 zone ----
+    { x: 0, y: 1900, w: WORLD, h: 80 },
+    { x: 0, y: 2200, w: WORLD, h: 80 },
+    { x: 0, y: 2600, w: WORLD, h: 80 },
+    { x: 0, y: 3000, w: WORLD, h: 80 },
+    // ---- NEW vertical roads in the x > 1800 zone ----
+    { x: 1850, y: 0, w: 80, h: WORLD },
+    { x: 2200, y: 0, w: 80, h: WORLD },
+    { x: 2600, y: 0, w: 80, h: WORLD },
+    { x: 3000, y: 0, w: 80, h: WORLD }
 ];
 
 let buildings = [];
 
 // ============================================
-// ORIGINAL BUILDING GENERATION (v2)
+// BUILDING GENERATION — ORIGINAL ZONES (v2) + EXPANDED AREA
 // ============================================
 function genBuildings() {
     buildings = [];
     const zones = [
+        // ---- ORIGINAL 18 zones — untouched ----
         { x: 240,  y: 0,    w: 200, h: 190 },
         { x: 540,  y: 0,    w: 250, h: 190 },
         { x: 890,  y: 0,    w: 200, h: 190 },
@@ -123,9 +136,76 @@ function genBuildings() {
         { x: 890,  y: 590,  w: 200, h: 300 },
         { x: 1200, y: 590,  w: 250, h: 300 },
         { x: 1550, y: 590,  w: 200, h: 300 },
-        { x: 240,  y: 1000, w: 1300, h: WORLD - 1000 },
-        { x: 0,    y: 0,    w: 140,  h: WORLD },
-        { x: WORLD - 140, y: 0, w: 140, h: WORLD }
+        { x: 240,  y: 1000, w: 1300, h: 800 },
+        { x: 0,    y: 0,    w: 140,  h: 1800 },
+        { x: 1660, y: 0,    w: 140,  h: 1800 },
+
+        // ---- NEW zones in the x > 1800 column (right expansion) ----
+        // Between x=1930 and x=2200 (between new roads at 1850 and 2200)
+        { x: 1940, y: 0,    w: 240, h: 190 },
+        { x: 1940, y: 290,  w: 240, h: 200 },
+        { x: 1940, y: 590,  w: 240, h: 300 },
+        { x: 1940, y: 1000, w: 240, h: 800 },
+        // Between x=2280 and x=2600
+        { x: 2290, y: 0,    w: 290, h: 190 },
+        { x: 2290, y: 290,  w: 290, h: 200 },
+        { x: 2290, y: 590,  w: 290, h: 300 },
+        { x: 2290, y: 1000, w: 290, h: 800 },
+        // Between x=2680 and x=3000
+        { x: 2690, y: 0,    w: 290, h: 190 },
+        { x: 2690, y: 290,  w: 290, h: 200 },
+        { x: 2690, y: 590,  w: 290, h: 300 },
+        { x: 2690, y: 1000, w: 290, h: 800 },
+        // Between x=3080 and right edge
+        { x: 3090, y: 0,    w: 100, h: 1800 },
+
+        // ---- NEW zones in the y > 1800 row (bottom expansion) ----
+        // Full strip of blocks between y=1480 and y=1900 (between original y=1400 road and new y=1900 road)
+        { x: 0,    y: 1500, w: 140,  h: 380 },
+        { x: 240,  y: 1500, w: 200,  h: 380 },
+        { x: 540,  y: 1500, w: 240,  h: 380 },
+        { x: 890,  y: 1500, w: 200,  h: 380 },
+        { x: 1200, y: 1500, w: 240,  h: 380 },
+        { x: 1550, y: 1500, w: 290,  h: 380 },
+        { x: 1940, y: 1500, w: 240,  h: 380 },
+        { x: 2290, y: 1500, w: 290,  h: 380 },
+        { x: 2690, y: 1500, w: 290,  h: 380 },
+        { x: 3090, y: 1500, w: 100,  h: 380 },
+        // Between y=1980 and y=2200
+        { x: 0,    y: 1990, w: 140,  h: 190 },
+        { x: 240,  y: 1990, w: 200,  h: 190 },
+        { x: 540,  y: 1990, w: 240,  h: 190 },
+        { x: 890,  y: 1990, w: 200,  h: 190 },
+        { x: 1200, y: 1990, w: 240,  h: 190 },
+        { x: 1550, y: 1990, w: 290,  h: 190 },
+        { x: 1940, y: 1990, w: 240,  h: 190 },
+        { x: 2290, y: 1990, w: 290,  h: 190 },
+        { x: 2690, y: 1990, w: 290,  h: 190 },
+        { x: 3090, y: 1990, w: 100,  h: 190 },
+        // Between y=2280 and y=2600
+        { x: 0,    y: 2290, w: 140,  h: 290 },
+        { x: 240,  y: 2290, w: 200,  h: 290 },
+        { x: 540,  y: 2290, w: 240,  h: 290 },
+        { x: 890,  y: 2290, w: 200,  h: 290 },
+        { x: 1200, y: 2290, w: 240,  h: 290 },
+        { x: 1550, y: 2290, w: 290,  h: 290 },
+        { x: 1940, y: 2290, w: 240,  h: 290 },
+        { x: 2290, y: 2290, w: 290,  h: 290 },
+        { x: 2690, y: 2290, w: 290,  h: 290 },
+        { x: 3090, y: 2290, w: 100,  h: 290 },
+        // Between y=2680 and y=3000
+        { x: 0,    y: 2690, w: 140,  h: 290 },
+        { x: 240,  y: 2690, w: 200,  h: 290 },
+        { x: 540,  y: 2690, w: 240,  h: 290 },
+        { x: 890,  y: 2690, w: 200,  h: 290 },
+        { x: 1200, y: 2690, w: 240,  h: 290 },
+        { x: 1550, y: 2690, w: 290,  h: 290 },
+        { x: 1940, y: 2690, w: 240,  h: 290 },
+        { x: 2290, y: 2690, w: 290,  h: 290 },
+        { x: 2690, y: 2690, w: 290,  h: 290 },
+        { x: 3090, y: 2690, w: 100,  h: 290 },
+        // Between y=3080 and bottom edge
+        { x: 0,    y: 3090, w: WORLD, h: 110 },
     ];
 
     zones.forEach(z => {
@@ -253,7 +333,7 @@ function initGame() {
 
     // Spawn multiple vehicle types
     const vehicleTypeKeys = Object.keys(VEHICLE_TYPES);
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 45; i++) {
         const p = roadPos();
         const vType = vehicleTypeKeys[Math.floor(Math.random() * vehicleTypeKeys.length)];
         const vData = VEHICLE_TYPES[vType];
@@ -273,7 +353,7 @@ function initGame() {
     }
 
     // Spawn pedestrians
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 65; i++) {
         const p = roadPos();
         peds.push({
             x: p.x, y: p.y, w: 8, h: 8,
