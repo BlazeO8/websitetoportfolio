@@ -6,7 +6,7 @@
 
 body {
     background: #0a0e27;
-    overflow: hidden;
+    overflow: auto;
 }
 
 #gw {
@@ -16,6 +16,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    padding-bottom: 250px;
 }
 
 #hud {
@@ -59,7 +60,7 @@ body {
     font-size: 10px;
     font-family: 'Courier New', monospace;
     z-index: 40;
-    box-shadow: 0 0 10px #f5c54222;
+    box-shadow: 0 0 10px #f5c54244;
 }
 
 #mission-progress {
@@ -196,10 +197,22 @@ body {
     opacity: 1;
 }
 
+/* MOBILE RESPONSIVE - FIXED FOR VISIBILITY */
 @media (max-width: 768px) {
+    body {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    #gw {
+        min-height: auto;
+        padding: 10px;
+        padding-bottom: 280px;
+    }
+
     #gc {
         width: 100%;
-        height: auto;
+        height: 300px;
         max-width: 100vw;
     }
 
@@ -211,37 +224,44 @@ body {
 
     #ctrl {
         font-size: 7px;
-        gap: 8px;
-        padding: 8px;
-        flex-direction: column;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0, 0, 0, 0.9);
-        border-top: 1px solid #333;
-        z-index: 30;
-        max-height: 100px;
-        overflow-y: auto;
+        gap: 6px;
+        padding: 12px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        position: relative;
+        background: rgba(0, 0, 0, 0.8);
+        border-top: 2px solid #f5c542;
+        border-radius: 0;
+        z-index: 35;
+        margin-top: 10px;
+        max-height: none;
+        overflow-y: visible;
+        width: 100%;
     }
 
     .kb {
         font-size: 6px;
-        padding: 2px 4px;
+        padding: 3px 5px;
+        white-space: nowrap;
     }
 
     #mission-info {
-        font-size: 8px;
-        top: 60px;
-        left: 8px;
-        padding: 6px 8px;
-    }
-
-    #gw {
-        padding: 5px;
+        font-size: 7px;
+        top: 50px;
+        left: 5px;
+        padding: 4px 6px;
     }
 
     #wrap {
         margin: 5px 0;
+    }
+
+    #minimap {
+        bottom: 150px;
+        right: 5px;
+        width: 80px;
+        height: 80px;
     }
 }
