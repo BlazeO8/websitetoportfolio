@@ -918,7 +918,7 @@ function drawBikeWheels(c, car) {
 }
 
 // ============================================
-// PLAYER DRAWING (animated, skinned)
+// PLAYER DRAWING — HUMANOID CHARACTER
 // ============================================
 function drawPlayer(c, p) {
     c.save();
@@ -928,17 +928,104 @@ function drawPlayer(c, p) {
     );
     c.rotate(p.angle);
 
-    c.fillStyle = p.color;
-    c.fillRect(-8, -5, 16, 10);
+    const walk = Math.sin(p.animFrame * Math.PI / 2);
+    const legSwing = walk * 2.5;
+    const armSwing = walk * 1.5;
+    const headBob = Math.abs(walk) * 0.5;
 
-    const headBob = Math.sin(p.animFrame * Math.PI / 2) * 1;
-    c.fillStyle = p.head;
+    // Derive darker shade for legs/belt from body color
+    const darkenHex = (hex, amt) => {
+        const n = parseInt(hex.slice(1), 16);
+        const r = Math.max(0, (n >> 16) - amt);
+        const g = Math.max(0, ((n >> 8) & 0xff) - amt);
+        const b = Math.max(0, (n & 0xff) - amt);
+        return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    };
+    const darkColor = darkenHex(p.color, 60);
+
+    // ---- LEGS ----
+    c.fillStyle = darkColor;
+    // Left leg
+    c.save();
+    c.translate(-2.5, 5);
+    c.rotate(legSwing * 0.08);
+    c.fillRect(-2, 0, 4, 7);
+    c.restore();
+    // Right leg
+    c.save();
+    c.translate(2.5, 5);
+    c.rotate(-legSwing * 0.08);
+    c.fillRect(-2, 0, 4, 7);
+    c.restore();
+
+    // ---- BODY ----
+    c.fillStyle = p.color;
     c.beginPath();
-    c.arc(0, -6 + headBob, 4, 0, Math.PI * 2);
+    c.roundRect(-5, -4, 10, 10, 2);
     c.fill();
 
-    c.fillStyle = '#ffe066';
-    c.fillRect(6, -1, 8, 2);
+    // Belt
+    c.fillStyle = darkColor;
+    c.fillRect(-5, 3.5, 10, 2);
+
+    // ---- LEFT ARM (back, non-gun side) ----
+    c.fillStyle = p.color;
+    c.save();
+    c.translate(-5, -2);
+    c.rotate(-armSwing * 0.08);
+    c.fillRect(-3, 0, 3, 6);
+    c.restore();
+
+    // ---- RIGHT ARM + GUN (forward, gun side) ----
+    c.save();
+    c.translate(5, -1);
+    c.rotate(armSwing * 0.04);
+    // Upper arm
+    c.fillStyle = p.color;
+    c.fillRect(0, 0, 5, 3);
+    // Gun
+    c.fillStyle = '#333';
+    c.fillRect(4, -1, 8, 3);
+    // Barrel tip highlight
+    c.fillStyle = '#888';
+    c.fillRect(11, -0.5, 2, 2);
+    c.restore();
+
+    // ---- HEAD ----
+    c.save();
+    c.translate(0, -headBob);
+
+    // Head shape
+    c.fillStyle = p.head;
+    c.beginPath();
+    c.ellipse(0, -9, 5, 5.5, 0, 0, Math.PI * 2);
+    c.fill();
+
+    // Hair
+    c.fillStyle = darkColor;
+    c.fillRect(-5, -15, 10, 4);
+    c.beginPath();
+    c.arc(0, -14, 5, Math.PI, 0);
+    c.fill();
+
+    // Eyes (face forward = right in rotated space)
+    c.fillStyle = '#fff';
+    c.fillRect(1, -11, 2.5, 3);
+    c.fillRect(4, -11, 2.5, 3);
+    // Pupils
+    c.fillStyle = '#111';
+    c.fillRect(1.8, -10.5, 1.2, 1.8);
+    c.fillRect(4.8, -10.5, 1.2, 1.8);
+
+    // Mouth
+    c.strokeStyle = darkColor;
+    c.lineWidth = 0.8;
+    c.beginPath();
+    c.moveTo(1.5, -7);
+    c.quadraticCurveTo(3.5, -5.5, 5.5, -7);
+    c.stroke();
+
+    c.restore();
 
     c.restore();
 }
