@@ -730,38 +730,185 @@ function drawRotatedRect(c, x, y, w, h, angle, fillCol, strokeCol) {
     c.restore();
 }
 
-function drawVehicle(c, car) {
-    drawRotatedRect(c, car.x, car.y, car.w, car.h, car.angle, car.col, '#111');
+function drawCar(c, car) {
+    // Body
+    c.fillStyle = car.col;
+    c.fillRect(-car.w/2, -car.h/2 + 2, car.w, car.h - 4);
     
-    // Draw wheels with rotation
-    c.save();
-    c.translate(car.x - cam.x, car.y - cam.y);
-    c.rotate(car.angle);
+    // Cabin
+    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 4);
     
-    // Wheels
-    c.fillStyle = '#333';
+    // Windows
+    c.fillStyle = '#87ceebaa';
+    c.fillRect(-car.w/2 + 3, -car.h/2 - 1, car.w - 6, 3);
+    
+    // Headlights
+    c.fillStyle = '#ffff99';
+    c.fillRect(-car.w/2 + 1, -car.h/2 + 2, 2, 1.5);
+    c.fillRect(-car.w/2 + 1, -car.h/2 + 4, 2, 1.5);
+    
+    drawWheels(c, car);
+}
+
+function drawTruck(c, car) {
+    // Cargo area
+    c.fillStyle = car.col;
+    c.fillRect(-car.w/2, -car.h/2, car.w * 0.65, car.h);
+    
+    // Cargo ridges
+    c.strokeStyle = '#00000033';
+    c.lineWidth = 1;
+    for (let i = -car.h/2 + 3; i < car.h/2; i += 4) {
+        c.beginPath();
+        c.moveTo(-car.w/2 + 2, i);
+        c.lineTo(-car.w/2 + car.w * 0.6, i);
+        c.stroke();
+    }
+    
+    // Cabin
+    c.fillStyle = car.col;
+    c.fillRect(-car.w/2 + car.w * 0.6, -car.h/2, car.w * 0.4, car.h);
+    
+    // Cabin window
+    c.fillStyle = '#87ceebaa';
+    c.fillRect(-car.w/2 + car.w * 0.62, -car.h/2 + 2, car.w * 0.36, 3);
+    
+    drawTruckWheels(c, car);
+}
+
+function drawBike(c, car) {
+    // Frame - streamlined
+    c.fillStyle = car.col;
+    c.beginPath();
+    c.moveTo(-car.w/2, 0);
+    c.lineTo(-car.w/2 + 3, -car.h/2 + 1);
+    c.lineTo(car.w/2 - 2, -car.h/2 + 1);
+    c.lineTo(car.w/2, 0);
+    c.lineTo(car.w/2 - 2, car.h/2 - 1);
+    c.lineTo(-car.w/2 + 3, car.h/2 - 1);
+    c.closePath();
+    c.fill();
+    
+    // Headlight
+    c.fillStyle = '#ffff99';
+    c.beginPath();
+    c.arc(car.w/2 - 1, 0, 1.2, 0, Math.PI * 2);
+    c.fill();
+    
+    drawBikeWheels(c, car);
+}
+
+function drawPoliceCar(c, car) {
+    // Body
+    c.fillStyle = car.col;
+    c.fillRect(-car.w/2, -car.h/2 + 2, car.w, car.h - 4);
+    
+    // White stripe
+    c.fillStyle = '#ffffff';
+    c.fillRect(-1.5, -car.h/2 + 2, 3, car.h - 4);
+    
+    // Top cabin
+    c.fillStyle = car.col;
+    c.fillRect(-car.w/2 + 2, -car.h/2 - 2, car.w - 4, 4);
+    
+    // Lights on roof
+    c.fillStyle = '#f43f5e';
+    c.fillRect(-6, -car.h/2 - 3, 4, 2);
+    c.fillStyle = '#60a5fa';
+    c.fillRect(2, -car.h/2 - 3, 4, 2);
+    
+    // Windows
+    c.fillStyle = '#87ceebaa';
+    c.fillRect(-car.w/2 + 3, -car.h/2 - 1, car.w - 6, 3);
+    
+    drawWheels(c, car);
+}
+
+function drawAmbulance(c, car) {
+    // Body - longer
+    c.fillStyle = car.col;
+    c.fillRect(-car.w/2, -car.h/2 + 1, car.w, car.h - 2);
+    
+    // Red cross stripe
+    c.fillStyle = '#ff0000';
+    c.fillRect(-1, -car.h/2 + 2, 2, car.h - 4);
+    c.fillRect(-2.5, 0, 5, 1.5);
+    
+    // Window
+    c.fillStyle = '#87ceebaa';
+    c.fillRect(-car.w/2 + 2, -car.h/2 + 2, car.w - 4, 2);
+    
+    drawWheels(c, car);
+}
+
+function drawWheels(c, car) {
     const wheelOffsets = [
-        [-car.w / 3, -car.h / 2 + 2],
-        [car.w / 3, -car.h / 2 + 2],
-        [-car.w / 3, car.h / 2 - 2],
-        [car.w / 3, car.h / 2 - 2]
+        [-car.w / 3, -car.h / 2 + 1],
+        [-car.w / 3, car.h / 2 - 1],
+        [car.w / 3, -car.h / 2 + 1],
+        [car.w / 3, car.h / 2 - 1]
     ];
     
     wheelOffsets.forEach(offset => {
         c.save();
         c.translate(offset[0], offset[1]);
         c.rotate(car.wheelRotation);
-        c.fillRect(-2, -3, 4, 6);
+        drawWheel(c, 2.5);
         c.restore();
     });
+}
+
+function drawTruckWheels(c, car) {
+    // Front wheels
+    for (let y of [-car.h / 2 + 1, car.h / 2 - 1]) {
+        c.save();
+        c.translate(-car.w / 2 + 4, y);
+        c.rotate(car.wheelRotation);
+        drawWheel(c, 2.5);
+        c.restore();
+    }
     
-    // Windows
-    c.fillStyle = '#bae6fd55';
-    c.fillRect(-car.w / 2 + 3, -car.h / 2 + 2, car.w - 6, car.h - 4);
+    // Rear dual wheels (truck style)
+    for (let offset of [-1.5, 1.5]) {
+        for (let y of [-car.h / 2 + 1, car.h / 2 - 1]) {
+            c.save();
+            c.translate(car.w / 3 + offset, y);
+            c.rotate(car.wheelRotation);
+            drawWheel(c, 3);
+            c.restore();
+        }
+    }
+}
+
+function drawBikeWheels(c, car) {
+    // Front wheel
+    c.save();
+    c.translate(car.w / 2 - 3, 0);
+    c.rotate(car.wheelRotation);
+    drawWheel(c, 1.8);
+    c.restore();
     
+    // Rear wheel
+    c.save();
+    c.translate(-car.w / 2 + 2, 0);
+    c.rotate(car.wheelRotation);
+    drawWheel(c, 1.8);
     c.restore();
 }
 
+function drawWheel(c, size) {
+    // Tire
+    c.fillStyle = '#111';
+    c.beginPath();
+    c.arc(0, 0, size, 0, Math.PI * 2);
+    c.fill();
+    
+    // Rim
+    c.fillStyle = '#666';
+    c.beginPath();
+    c.arc(0, 0, size * 0.55, 0, Math.PI * 2);
+    c.fill();
+}
 function drawPlayer(c, p) {
     c.save();
     c.translate(p.x - cam.x + (Math.random() - 0.5) * screenShake, p.y - cam.y + (Math.random() - 0.5) * screenShake);
