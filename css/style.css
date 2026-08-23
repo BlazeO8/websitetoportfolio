@@ -326,9 +326,17 @@ nav .nav-links.open{display:flex}
 .game-modal-iframe{border:none;border-radius:12px;display:block}
 
 /* Certificate image modal (lightbox) */
-.cert-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;align-items:center;justify-content:center;padding:2rem;cursor:zoom-out}
-.cert-modal.open{display:flex}
-.cert-modal-inner{position:relative;max-width:min(92vw,1000px);max-height:88vh;cursor:default}
+.cert-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;pointer-events:none;transition:opacity 0.28s ease}
+.cert-modal.open{opacity:1;pointer-events:auto;cursor:zoom-out}
+.cert-modal-inner{position:relative;max-width:min(92vw,1000px);max-height:88vh;cursor:default;transform:scale(0.82) translateY(30px);opacity:0;transition:transform 0.38s cubic-bezier(.19,1.15,.32,1),opacity 0.3s ease}
+.cert-modal.open .cert-modal-inner{transform:scale(1) translateY(0);opacity:1}
 .cert-modal-close{position:absolute;top:-42px;right:0;color:#fff;background:none;border:none;font-size:28px;cursor:pointer;line-height:1}
-.cert-modal-img{display:block;max-width:100%;max-height:88vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.6);background:#fff}
+.cert-modal-img-wrap{overflow:hidden;border-radius:12px;max-width:100%;max-height:88vh;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(0,0,0,0.6);background:#fff}
+.cert-modal-img{display:block;max-width:100%;max-height:88vh;user-select:none;-webkit-user-drag:none;transform-origin:center center;transition:transform 0.15s ease-out;cursor:zoom-in}
+.cert-modal-img.zoomed{cursor:grab}
+.cert-modal-img.dragging{cursor:grabbing;transition:none}
 .cert-modal-title{color:#fff;text-align:center;margin-top:0.75rem;font-size:0.95rem;opacity:0.85}
+.cert-zoom-controls{position:absolute;top:-42px;left:0;display:flex;gap:0.4rem;align-items:center}
+.cert-zoom-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.cert-zoom-btn:hover{background:rgba(255,255,255,0.22)}
+.cert-zoom-level{color:#fff;font-size:0.8rem;opacity:0.8;min-width:42px;text-align:center;cursor:pointer}
