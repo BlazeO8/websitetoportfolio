@@ -36,12 +36,28 @@ function certCardHTML(cert, delayClass) {
         <div class="cert-issuer">${cert.issuer}</div>
         <div class="cert-badge">✓ Completed</div>
         <div class="cert-links">
-          <a href="${BASE}${cert.pdf}" target="_blank" rel="noopener noreferrer" class="cert-btn">View</a>
+          <button type="button" onclick="openCertModal('${BASE}${cert.thumb}', '${cert.title.replace(/'/g, "\\'")}')" class="cert-btn">View</button>
           <a href="${BASE}${cert.pdf}" download class="cert-btn download">Download</a>
         </div>
       </div>
     </div>`;
 }
+
+// Certificate image lightbox — shows the cert thumbnail image inline instead
+// of opening the PDF in a new browser tab.
+function openCertModal(src, title) {
+  let modal = document.getElementById('certModal');
+  if (!modal) return;
+  document.getElementById('certModalImg').src = src;
+  document.getElementById('certModalImg').alt = title || 'Certificate';
+  document.getElementById('certModalTitle').textContent = title || '';
+  modal.classList.add('open');
+}
+function closeCertModal() {
+  const modal = document.getElementById('certModal');
+  if (modal) modal.classList.remove('open');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCertModal(); });
 
 function projectCardHTML(proj, delayClass) {
   const linkIcon = proj.playable
