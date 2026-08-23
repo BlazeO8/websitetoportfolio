@@ -242,6 +242,15 @@
   </div>
 </div>
 
+<!-- Certificate Image Modal -->
+<div id="certModal" class="cert-modal" onclick="if(event.target===this) closeCertModal()">
+  <div class="cert-modal-inner">
+    <button onclick="closeCertModal()" class="cert-modal-close">✕</button>
+    <img id="certModalImg" src="" alt="Certificate" class="cert-modal-img">
+    <div id="certModalTitle" class="cert-modal-title"></div>
+  </div>
+</div>
+
 <script>window.ASSET_BASE = '';</script>
 <script src="js/data.js"></script>
 <script src="js/cards.js"></script>
