@@ -31,6 +31,9 @@ const CERTIFICATES = [
   { title: 'C++ Programming', issuer: 'Coursera', category: 'language', status: 'completed', thumb: 'certificates/thumbnails/cpp.png', pdf: 'certificates/cpp.pdf', featured: false },
   { title: 'Networking & Cybersecurity', issuer: 'Ducat', category: 'networking', status: 'completed', thumb: 'certificates/thumbnails/networking.png', pdf: 'certificates/networking.pdf', featured: true },
   { title: 'Gen AI and Agentic AI', issuer: 'IITM / GRAStech', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/gen-ai-agentic-ai.png', pdf: 'certificates/gen-ai-agentic-ai.pdf', featured: true },
+  { title: 'Data Analytics Job Simulation', issuer: 'Deloitte (Forage)', category: 'other', status: 'completed', thumb: 'certificates/thumbnails/deloitte-data-analytics.png', pdf: 'certificates/deloitte-data-analytics.pdf', featured: false },
+  { title: 'GenAI Powered Data Analytics Job Simulation', issuer: 'Tata (Forage)', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/tata-genai-data-analytics.png', pdf: 'certificates/tata-genai-data-analytics.pdf', featured: false },
+  { title: 'AI in Action Job Simulation', issuer: 'Vista (Forage)', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/vista-ai-in-action.png', pdf: 'certificates/vista-ai-in-action.pdf', featured: false },
 
   // Anthropic Academy — completed
   { title: 'Claude 101', issuer: 'Anthropic', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/claude-101.png', pdf: 'certificates/anthropic/claude-101.pdf', featured: true },
@@ -83,14 +86,6 @@ const PROJECTS = [
     tags: ['Python', 'FastAPI', 'Groq/Llama 3.3', 'SQLite'],
     grad: 'linear-gradient(135deg,#8b5cf6,#ec4899)',
     link: 'https://github.com/BlazeO8/B.L.A.Z.E-personalized-AI-agent',
-  },
-  {
-    title: 'Binance Futures Trading Bot',
-    desc: 'A CLI trading bot for Binance Futures Testnet supporting Market, Limit, and Stop-Limit orders, with input validation, structured error handling, and rotating request/response logs.',
-    icon: '💹', category: 'finance', featured: false,
-    tags: ['Python', 'python-binance', 'CLI'],
-    grad: 'linear-gradient(135deg,#f59e0b,#ef4444)',
-    link: 'https://github.com/BlazeO8/trading-bot-binance',
   },
   {
     title: 'NL-to-SQL Query Generator',
@@ -147,5 +142,13 @@ const PROJECTS = [
     tags: ['Roblox', 'Lua', 'Game Dev'],
     grad: 'linear-gradient(135deg,#22c55e,#0ea5e9)',
     link: 'https://www.roblox.com/games/12171252028/special-obby',
+  },
+  {
+    title: 'PRAGATI — AI Smart Allocation for PM Internship Scheme',
+    desc: 'Smart India Hackathon 2026 project (Problem SIH25033). A global, explainable allocation engine that optimizes internship placements across the entire candidate population at once using OR-Tools CP-SAT, with fairness constraints, policy simulation, and full audit trails.',
+    icon: '🎯', category: 'ai-ml', featured: true,
+    tags: ['Java/Spring Boot', 'Python/FastAPI', 'OR-Tools CP-SAT', 'React/TypeScript'],
+    grad: 'linear-gradient(135deg,#059669,#0891b2)',
+    link: 'https://github.com/BlazeO8/AI-allocation-engine-for-PM-internship-scheme',
   },
 ];
