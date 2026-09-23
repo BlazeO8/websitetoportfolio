@@ -106,5 +106,6 @@ function displayFeedbacks() {
 displayFeedbacks();
 
 /* FEATURED PROJECTS + CERTIFICATES (data-driven, see data.js / cards.js) */
-renderFeatured('featured-certs-grid', CERTIFICATES, certCardHTML, 4);
+renderPodium('podium-certs-grid', CERTIFICATES);
+renderFeatured('featured-certs-grid', CERTIFICATES.filter(c => !c.podium), certCardHTML, 4);
 renderFeatured('featured-projects-grid', PROJECTS, projectCardHTML, 3);
