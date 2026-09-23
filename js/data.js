@@ -30,15 +30,15 @@ const CERTIFICATES = [
   { title: 'C Programming Part 1', issuer: 'Coursera', category: 'language', status: 'completed', thumb: 'certificates/thumbnails/c1.png', pdf: 'certificates/c1.pdf', featured: false },
   { title: 'C Programming Part 2', issuer: 'Coursera', category: 'language', status: 'completed', thumb: 'certificates/thumbnails/c2.png', pdf: 'certificates/c2.pdf', featured: false },
   { title: 'C++ Programming', issuer: 'Coursera', category: 'language', status: 'completed', thumb: 'certificates/thumbnails/cpp.png', pdf: 'certificates/cpp.pdf', featured: false },
-  { title: 'Networking & Cybersecurity', issuer: 'Ducat', category: 'networking', status: 'completed', thumb: 'certificates/thumbnails/networking.png', pdf: 'certificates/networking.pdf', featured: true },
-  { title: 'Gen AI and Agentic AI', issuer: 'IITM / GRAStech', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/gen-ai-agentic-ai.png', pdf: 'certificates/gen-ai-agentic-ai.pdf', featured: true },
+  { title: 'Networking & Cybersecurity', issuer: 'Ducat', category: 'networking', status: 'completed', thumb: 'certificates/thumbnails/networking.png', pdf: 'certificates/networking.pdf', featured: true, podium: 2 },
+  { title: 'Gen AI and Agentic AI', issuer: 'IITM / GRAStech', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/gen-ai-agentic-ai.png', pdf: 'certificates/gen-ai-agentic-ai.pdf', featured: true, podium: 1 },
   { title: 'Data Analytics Job Simulation', issuer: 'Deloitte (Forage)', category: 'data', status: 'completed', thumb: 'certificates/thumbnails/deloitte-data-analytics.png', pdf: 'certificates/deloitte-data-analytics.pdf', featured: false },
-  { title: 'GenAI Powered Data Analytics Job Simulation', issuer: 'Tata (Forage)', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/tata-genai-data-analytics.png', pdf: 'certificates/tata-genai-data-analytics.pdf', featured: false },
+  { title: 'GenAI Powered Data Analytics Job Simulation', issuer: 'Tata (Forage)', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/tata-genai-data-analytics.png', pdf: 'certificates/tata-genai-data-analytics.pdf', featured: true },
   { title: 'AI in Action Job Simulation', issuer: 'Vista (Forage)', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/vista-ai-in-action.png', pdf: 'certificates/vista-ai-in-action.pdf', featured: false },
 
   // Anthropic Academy — completed
-  { title: 'Claude 101', issuer: 'Anthropic', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/claude-101.png', pdf: 'certificates/anthropic/claude-101.pdf', featured: true },
-  { title: 'Claude Code 101', issuer: 'Anthropic', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/claude-code-101.png', pdf: 'certificates/anthropic/claude-code-101.pdf', featured: false },
+  { title: 'Claude 101', issuer: 'Anthropic', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/claude-101.png', pdf: 'certificates/anthropic/claude-101.pdf', featured: true, podium: 3 },
+  { title: 'Claude Code 101', issuer: 'Anthropic', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/claude-code-101.png', pdf: 'certificates/anthropic/claude-code-101.pdf', featured: true },
   { title: 'Claude Platform 101', issuer: 'Anthropic', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/claude-platform-101.png', pdf: 'certificates/anthropic/claude-platform-101.pdf', featured: false },
 
   // Anthropic Academy — in progress (course catalog: anthropic.skilljar.com)
