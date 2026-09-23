@@ -8,6 +8,7 @@ const CERT_CATEGORIES = [
   { id: 'ai-ml',       label: 'AI / ML',                icon: '🤖' },
   { id: 'language',    label: 'Programming Languages',   icon: '💻' },
   { id: 'networking',  label: 'Networking & Security',   icon: '🌐' },
+  { id: 'data',        label: 'Data Analytics',          icon: '📊' },
   { id: 'other',       label: 'Other',                   icon: '📁' },
 ];
 
@@ -31,7 +32,7 @@ const CERTIFICATES = [
   { title: 'C++ Programming', issuer: 'Coursera', category: 'language', status: 'completed', thumb: 'certificates/thumbnails/cpp.png', pdf: 'certificates/cpp.pdf', featured: false },
   { title: 'Networking & Cybersecurity', issuer: 'Ducat', category: 'networking', status: 'completed', thumb: 'certificates/thumbnails/networking.png', pdf: 'certificates/networking.pdf', featured: true },
   { title: 'Gen AI and Agentic AI', issuer: 'IITM / GRAStech', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/gen-ai-agentic-ai.png', pdf: 'certificates/gen-ai-agentic-ai.pdf', featured: true },
-  { title: 'Data Analytics Job Simulation', issuer: 'Deloitte (Forage)', category: 'other', status: 'completed', thumb: 'certificates/thumbnails/deloitte-data-analytics.png', pdf: 'certificates/deloitte-data-analytics.pdf', featured: false },
+  { title: 'Data Analytics Job Simulation', issuer: 'Deloitte (Forage)', category: 'data', status: 'completed', thumb: 'certificates/thumbnails/deloitte-data-analytics.png', pdf: 'certificates/deloitte-data-analytics.pdf', featured: false },
   { title: 'GenAI Powered Data Analytics Job Simulation', issuer: 'Tata (Forage)', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/tata-genai-data-analytics.png', pdf: 'certificates/tata-genai-data-analytics.pdf', featured: false },
   { title: 'AI in Action Job Simulation', issuer: 'Vista (Forage)', category: 'ai-ml', status: 'completed', thumb: 'certificates/thumbnails/vista-ai-in-action.png', pdf: 'certificates/vista-ai-in-action.pdf', featured: false },
 
