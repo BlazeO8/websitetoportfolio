@@ -43,6 +43,37 @@ function certCardHTML(cert, delayClass) {
     </div>`;
 }
 
+const PODIUM_MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉' };
+const PODIUM_LABELS = { 1: '1st', 2: '2nd', 3: '3rd' };
+
+function podiumCardHTML(cert) {
+  return `
+    <div class="podium-item podium-rank-${cert.podium} reveal">
+      <div class="podium-place">${PODIUM_LABELS[cert.podium]}</div>
+      <div class="podium-medal">${PODIUM_MEDALS[cert.podium]}</div>
+      <img src="${BASE}${cert.thumb}" alt="${cert.title}" class="cert-thumb-img" loading="lazy">
+      <div class="cert-body">
+        <div class="cert-title">${cert.title}</div>
+        <div class="cert-issuer">${cert.issuer}</div>
+        <div class="cert-badge">✓ Completed</div>
+        <div class="cert-links">
+          <button type="button" onclick="openCertModal('${BASE}${cert.thumb}', '${cert.title.replace(/'/g, "\\'")}')" class="cert-btn">View</button>
+          <a href="${BASE}${cert.pdf}" download class="cert-btn download">Download</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+// Renders the top-3 podium (sorted 2nd, 1st, 3rd so gold sits centered via CSS order)
+function renderPodium(containerId, items) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const podium = items.filter(i => i.podium).sort((a, b) => a.podium - b.podium);
+  if (!podium.length) return;
+  el.innerHTML = podium.map(podiumCardHTML).join('');
+  observeReveals(el);
+}
+
 // Certificate image lightbox — shows the cert thumbnail image inline instead
 // of opening the PDF in a new browser tab. Supports scroll-to-zoom,
 // double-click zoom, drag-to-pan when zoomed, and +/- buttons.
